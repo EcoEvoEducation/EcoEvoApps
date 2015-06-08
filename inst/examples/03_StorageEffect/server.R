@@ -5,7 +5,7 @@
 
 
 library(shiny)
-# library(ggplot2)
+library(ggplot2)
 library(mvtnorm)
 # source("annualPlantStorage_Functions.R")
 
@@ -90,15 +90,17 @@ shinyServer(function(input, output, session) {
     ####
     #### Plot results
     ####
-    matplot(seq(1,timeSim,1), Nsave, type="l")
-#     plotD <- data.frame(Abundance = c(Nsave[,1], Nsave[,2]),
-#                         Species = c(rep("A",timeSim), rep("B", timeSim)),
-#                         Time = seq(1,timeSim,1))
-#     
-#     ggplot(plotD, aes(x=Time, y=Abundance, color=Species))+
-#       geom_line(size=2)+
-#       scale_color_manual(values=c("grey25", "darkorange"))+
-#       ylab("Seed Abundance")+
-#       theme_bw()
+#     matplot(seq(1,timeSim,1), Nsave, type="l")
+    plotD <- data.frame(Abundance = c(Nsave[,1], Nsave[,2]),
+                        Species = c(rep("A",timeSim), rep("B", timeSim)),
+                        Time = seq(1,timeSim,1))
+    
+    theplot <- ggplot(plotD, aes(x=Time, y=Abundance, color=Species))+
+      geom_line(size=2)+
+      scale_color_manual(values=c("grey25", "darkorange"))+
+      ylab("Seed Abundance")+
+      theme_bw()
+
+    print(theplot)
   })
 })
