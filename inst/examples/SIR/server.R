@@ -28,25 +28,22 @@ shinyServer(function(input, output, session) {
     S0 <- input$S0
     I0 <- input$I0
     R0 <- input$R0
-    transmission <- input$tau
-    infectiousness <- input$eta
-    beta <- transmission*infectiousness
+    beta <- input$beta
     r <- input$r
     
-    simtime <- input$time
-    
-    model <- sir(So, Io, Ro,
+    simtime <- input$timesim
+    totpop <- S0+I0+R0
+    model <- sir(S0, I0, R0,
                  beta, r, simtime)
     
     mod.df <- as.data.frame(model)
-    mod.df$Time <- seq(1,time,1)
+    mod.df$Time <- seq(1,simtime,1)
     colnames(mod.df) <- c("Susceptible", "Infected", "Recovered", "Time")
     mod.df <- subset(mod.df)
-    require(reshape2)
     df.m <- melt (mod.df, id.vars="Time")
-    
-    theplot <- ggplot(data=df.m, aes(x=Time, y=(value/500*100), linetype=variable)) +
-      geom_line(size=1.5) +
+    df.m$value <- df.m$value/totpop*100
+    theplot <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
+      geom_line(size=1) +
       xlab("Time Since Initial Infection (years)") +
       ylab("Percent of Population (%)") +
       theme_bw() +

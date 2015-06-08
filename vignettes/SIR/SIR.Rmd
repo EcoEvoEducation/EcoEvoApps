@@ -16,6 +16,7 @@ SIR model...
 
 ```{r, echo=FALSE}
 library(ggplot2)
+library(reshape2)
 library(EcoEvoApps)
 shinyAppDir(
   system.file("examples/SIR", package="EcoEvoApps"),
