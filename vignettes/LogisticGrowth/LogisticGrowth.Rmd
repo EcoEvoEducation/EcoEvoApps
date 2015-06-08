@@ -1,0 +1,161 @@
+---
+title: "Logistic Growth and Chaos"
+author: "Brittany Teller and Andrew Tredennick"
+output: html_document
+runtime: shiny
+---
+
+```{r, echo=FALSE, message=FALSE}
+library(shiny)
+library(shinyapps)
+library(png)
+library(rmarkdown)
+#devtools::install_github("EcoEvoEducation/EcoEvoApps")
+
+```
+
+### Introduction
+In the last lesson, we examined cases when populations growth without bound. Obviously this almost never occurs in nature, because species require resources that are often limited. 
+
+To model these cases, we can use a model of logistic growth. As before, we start with the idea that in any population, the number of individuals at any particular time is governed by the initial population size, $N_0$, and the number of births, deaths, immigrations, and emigarations that occur.
+
+However in this disctrete-time model, resources are limited, and thus the population may not grow beyond its **carrying capacity**.
+
+Then population size in each timestep is a function of the population size at the time before ($N_t$), the population growth rate ($\lambda$), and the carrying capacity ($K$) as shown in the equation below.
+
+$$N_t+1=N_t+\lambda*N_t*(K-N_t)/K$$
+
+To program these dynamics, we start by considering a population with an initial population size of 50, a population growth rate, $/lambda=1.3$, and limit the population to a carrying capacity of 500.
+
+```{r, echo=FALSE}
+inputPanel(
+  sliderInput("N01", label = "Initial Population size:",
+              min = 10, max = 100, value = 50, step = 10),
+  
+  sliderInput("lambda", label = "Population Growth Rate:",
+              min = 0.2, max = 1.7, value = 1.3, step = 0.1),
+  
+  sliderInput("K", label = "Carrying capacity:",
+              min = 100, max = 1000, value = 500, step = 100)
+)
+
+renderPlot({
+  nSteps<-50
+  time<-seq(from=1, to=nSteps, by=1)
+  
+  Nvec<-c(input$N01, rep(NA, times=nSteps-1))
+  
+  for (i in 2:nSteps){
+    Nvec[i]<-Nvec[i-1]+(input$lambda)*Nvec[i-1]*(input$K-Nvec[i-1])/input$K
+    }
+  
+  plot(Nvec~time, ylab="Number of individuals (N)", ylim=c(0,1000), type="o")
+    
+})
+```
+
+It turns out that discrete time versions of models that try to capture the effects of carrying capacities have funny properties that make them sensitive to initial population size and growth rate.
+
+Below, Compare two species when they have only slightly different initial conditions or growth rates.
+
+```{r, echo=FALSE}
+inputPanel(
+  sliderInput("N02.1", label = "Initial Population size:",
+              min = 10, max = 100, value = 50, step = 10),
+  
+  sliderInput("lambda.1", label = "Population Growth Rate:",
+              min = 0.2, max = 4.1, value = 1.3, step = 0.1),
+  
+  sliderInput("N02.2", label = "Initial Population size:",
+              min = 10, max = 100, value = 50, step = 10),
+  
+  sliderInput("lambda.2", label = "Population Growth Rate:",
+              min = 0.2, max = 4.1, value = 1.3, step = 0.1)
+
+)
+
+renderPlot({
+  
+  nSteps<-50;
+  K<-500;
+  time<-seq(from=1, to=nSteps, by=1);
+  
+  N1vec<-c(input$N02.1, rep(NA, times=nSteps-1));
+  
+  for (i in 2:nSteps){
+    N1vec[i]<-N1vec[i-1]+(input$lambda.1)*N1vec[i-1]*(K-N1vec[i-1])/K
+    };
+
+  N2vec<-c(input$N02.2, rep(NA, times=nSteps-1))
+  
+  for (i in 2:nSteps){
+    N2vec[i]<-N2vec[i-1]+(input$lambda.2)*N2vec[i-1]*(K-N2vec[i-1])/K
+    }
+  
+  plot(N1vec~time, ylab="Number of individuals (N)", ylim=c(0,1000), type="o")
+  
+  lines(N2vec~time, col="orange")
+    
+})
+
+```
+
+As you can tell, when the population growth rate is too high, the population "overshoots" the carrying capacity, and then is corrected. These cycles can be stable or unstable, and we can follow the population trajectory towards equilibria using a phase diagram, as shown below.
+
+```{r, echo=FALSE}
+inputPanel(
+  sliderInput("N02", label = "Initial Population size:",
+              min = 10, max = 100, value = 50, step = 10),
+  
+  sliderInput("lambda", label = "Population Growth Rate:",
+              min = 0.2, max = 1.7, value = 4.1, step = 0.1),
+  
+  sliderInput("K", label = "Carrying capacity:",
+              min = 100, max = 1000, value = 500, step = 100)
+)
+
+renderPlot({
+  nSteps<-50
+  time<-seq(from=1, to=nSteps, by=1)
+  
+  Nvec<-c(input$N01, rep(NA, times=nSteps-1))
+  
+  for (i in 2:nSteps){
+    Nvec[i]<-Nvec[i-1]+(input$lambda)*Nvec[i-1]*(input$K-Nvec[i-1])/input$K
+    }
+  
+  par(mfrow=c(2,1))
+  plot(Nvec~time, ylab="Number of individuals (N)", ylim=c(0,1000), type="o")
+ 
+  plot(NA, ylim=c(0,1000), xlim=c(0,1000), ylab="N1", xlab="N2")
+  for (i in 2:length(Nvec) {
+    points(Nvec[i+1]~time[i], ylab="Number of individuals (N)", ylim=c(0,1000), type="o")}
+  
+})
+
+```
+
+
+
+
+You can program these plots yourself in R using the code below:
+
+```{r, echo=TRUE, fig.show='hide'}
+  
+  N0<-50   #The intitial population size
+  nSteps<-50    #The number of time steps
+  lambda<-1     # The population growth rate, lambda
+  K<-500        #The carrying capacity
+
+  Nvec<-c(N0, rep(NA, times=nSteps-1))  #Create an open vector for data
+  
+  #Run a loop that considers each time step (t) as a function of the time step before it (t-1) and lambda
+  for (t in 2:nSteps){
+    Nvec[t]<-Nvec[i-1]+(lambda)*Nvec[i-1]*(K-Nvec[i-1])/K
+    }
+  
+  time<-seq(from=1, to=nSteps, by=1)  #Create a vector of time steps for plotting
+  
+  plot(Nvec~time, ylab="Number of individuals (N)", ylim=c(0,100), type="o")  #plot the results
+
+```

@@ -13,6 +13,8 @@ library(rmarkdown)
 #devtools::install_github("EcoEvoEducation/EcoEvoApps")
 
 ```
+
+### Introduction
 When a species is of conservation concern, we are interested in whether populations can persist in the long term. In order to examine population viabiliy, we can use demographic information to model population dynamics.
 
 Usually we start with the idea that in any population, the number of individuals at any particular time is governed by the initial population size, $N_0$, and the number of births, deaths, immigrations, and emigarations that occur.
