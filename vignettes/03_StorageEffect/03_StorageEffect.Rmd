@@ -1,5 +1,8 @@
-```{r, echo=FALSE}
-devtools::install_github("EcoEvoEducation/EcoEvoApps")
+```{r, echo=FALSE, message=FALSE}
+library(shiny)
+library(shinyapps)
+#devtools::install_github("EcoEvoEducation/EcoEvoApps")
+
 ```
 ---
 title: "Storage Effect Example"
@@ -142,8 +145,8 @@ for(t in 2:timeSim){
 ### Play with the model parameters
 
 ```{r, echo=FALSE}
-library(shiny)
-# library(shinyapps)
+#library(shiny)
+#library(shinyapps)
 library(ggplot2)
 library(mvtnorm)
 library(EcoEvoApps)
