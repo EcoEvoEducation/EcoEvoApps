@@ -1,5 +1,5 @@
 ---
-title: "Storage Effect Example"
+title: "Disease Transmission Model (Epidemiology)"
 author: "Brittany Teller and Andrew Tredennick"
 output: html_document
 runtime: shiny
@@ -10,7 +10,9 @@ library(shinyapps)
 #devtools::install_github("EcoEvoEducation/EcoEvoApps")
 ```
 ### Introduction
-SIR model...
+Modeling the establishment and spread of pathogens, which cause and carry infectious diseases, is a cornerstone of disease ecology and epidemiology. The simplest, yet still very effective, approach to modeling disease transmission is to separate a population into compartments that represent the health status of portions of the population. Perhaps the most popular *compartmental model* is the **SIR** model that divides the focal population into three compartments: **S**usceptible, **I**nfected, and **R**ecovered ([see here for Wikipedia description](http://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SIR_model)).
+
+<img src="figures/sir.png">
 
 ### Play with the model parameters
 
