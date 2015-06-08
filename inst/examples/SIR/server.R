@@ -3,51 +3,42 @@
 #
 # http://shiny.rstudio.com
 
-
-sir <- function(S0, I0, R0,
-                beta, r, simtime){
-  S <- I <- R <- numeric(simtime)
-  S[1] <- S0
-  I[1] <- I0
-  R[1] <- R0
-  for(t in 2:simtime){
-    dSdt <- -beta*S[t-1]*I[t-1]
-    dIdt <- beta*S[t-1]*I[t-1] - r*I[t-1]
-    dRdt <- r*I[t-1]
-    
-    S[t] <- S[t-1] + dSdt
-    I[t] <- I[t-1] + dIdt
-    R[t] <- R[t-1] + dRdt
-  }
-  outs <- cbind(S,I,R)
-  return(outs)
+## Continuous model
+updateSIR <- function(t, SIR, parms){
+  with(as.list(c(SIR, parms)), {
+    dSdt <- -beta*S*I
+    dIdt <- beta*S*I - r*I
+    dRdt <- r*I
+    list(c(dSdt, dIdt, dRdt)) #output
+  })
 }
 
 shinyServer(function(input, output, session) {
   output$SIR <- renderPlot({
-    S0 <- input$S0
-    I0 <- input$I0
-    R0 <- input$R0
-    beta <- input$beta
-    r <- input$r
-    
+    beta <- input$tau*input$eta
+    parms <- list(
+      beta = beta,
+      r = input$r
+    )
+    SIR <- c(S=input$S0,I=input$I0,R=input$R0)
     simtime <- input$timesim
-    totpop <- S0+I0+R0
-    model <- sir(S0, I0, R0,
-                 beta, r, simtime)
+    odetime <- seq(1,simtime,by=1)
+    totpop <- sum(SIR)
+    model <- as.data.frame(ode(y = SIR, times = odetime,
+                               func = updateSIR, parms = parms))
     
     mod.df <- as.data.frame(model)
-    mod.df$Time <- seq(1,simtime,1)
-    colnames(mod.df) <- c("Susceptible", "Infected", "Recovered", "Time")
-    mod.df <- subset(mod.df)
+    colnames(mod.df) <- c("Time", "Susceptible", "Infected", "Recovered")
     df.m <- melt (mod.df, id.vars="Time")
     df.m$value <- df.m$value/totpop*100
+    myCols <- c("#277BA8", "#7ABBBD", "#AED77A")
     theplot <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
-      geom_line(size=1) +
+      geom_line(size=1.5) +
       xlab("Time Since Initial Infection (years)") +
       ylab("Percent of Population (%)") +
       theme_bw() +
-      theme(legend.position = c(0.75,0.75))
+      theme(legend.position = c(0.75,0.85))+
+      scale_color_manual(values=myCols, name="")
     print(theplot)
   })
 })
