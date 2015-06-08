@@ -1,0 +1,153 @@
+---
+title: "Storage Effect Example"
+author: "Brittany Teller and Andrew Tredennick"
+output: html_document
+runtime: shiny
+---
+
+### Introduction
+This tutorial walks you through the logic and math behind coexistence of two annual plants via the storage effect ([see here for Wikipedia description](http://en.wikipedia.org/wiki/Storage_effect)). The basic idea behind the storage effect is that two species (or more) can coexist in fluctuating environment because no one species "performs" best under all environmental conditions. So, species partition their niche space in time rather than in space or resources. There are three conditions that must be met for the storage effect to operate:
+
+1. **Buffered population growth**: the species must have a way to avoid population declines during "bad" years. Many species achieve this by having long life spans with adult stages that are relatively unaffected by "bad" conditions. For example, adult trees tend to not be affected by single-year droughts or grass fires. So even all the seedlings in a population are killed by fire or drought, the adults remain to buffer the population until conditions improve.
+
+2. **Species-specific responses to environmental conditions**: species must have unique responses to environmental conditions so that "good" and "bad" years are partitioned among species. For example, annual plant species tend to have unique optimal temperatures for germination so that in any given year one species will have relatively high germination compared to other species.
+
+3. **Covariance between environment and competition**: basically, the idea here is that competition must be stronger in a year that is good for a species compared to a year that is bad. In most cases this occurs, in part, when condition 2 is satisfied because it partitions intraspecific and interspecific competition into different years. So when a spceies experiences a good year, intraspecific competition must be more strongly negative than in a bad year to stabilize coexistence. This tends to happen because in good years the population increases and with it competition since the overall competitive effect is $\alpha N$.
+
+### Mathematical example
+The storage effect is most easily described mathematically by a two-species annual plant model where the species compete for shared resources but have species-specific germination rates that depend on environmental conditions. In the model below, $N$ is the number of seeds in the seedbank at time $t$. All other parameters are described in the table below the model equations. 
+
+$$
+N_{1,t+1} = s_{1}[1-g_{1}(E_{t})]N_{1,t} + \frac{\lambda_{1}g_{1}(E_{t})N_{1,t}}{1+ \alpha_{11}g_{1}(E_{t})N_{1,t} + \alpha_{12}g_{2}(E_{t})N_{2,t}} \\
+N_{2,t+1} = s_{2}[1-g_{2}(E_{t})]N_{2,t} + \frac{\lambda_{2}g_{2}(E_{t})N_{2,t}}{1+ \alpha_{21}g_{2}(E_{t})N_{2,t} + \alpha_{22}g_{2}(E_{t})N_{2,t}}
+$$
+
+| Parameter | Definition |
+|---|---|
+| $s$ | survival of seeds in seedbank (proportion) | 
+| $g$ | fraction of seeds that germinate (dependent on $E_{t}$) | 
+| $E_{t}$ | environmental driver of germination rate ($g$; see description below) | 
+| $\lambda$ | per capita fecundity (number of seeds produced per individual plant) |
+| $\alpha$ | per capital competitive effect ($\alpha_{ii}$ is intraspecific; $\alpha_{ij}$ is interspecific) |
+
+Key to having the storage effect operate in this annual plant model with two species is that each species has unqiqe responses to the environment. In this model we include this environmental dependence throught the germination term $g$ that is dependent on the environment $E$ (this is written mathematically as $g(E_{t})$). So, first we need to simulate a randomly fluctuating environment. To do this we can make random draws from a multivariate normal distribution with means of 0 and variance-covariance structure of
+
+$$
+\begin{align}
+\begin{bmatrix}
+\sigma^2_{E} & \rho\sigma^2_{E} \\
+\rho\sigma^2_{E} & \sigma^2_{E}
+\end{bmatrix}
+\end{align}
+$$
+
+where $\sigma^2_{E}$ is the variance of the environment and $\rho$ is the correlation between the two species' germination rates. The value of $E$ returned from the random draw can be converted to a germination rate ($g(E_{t})$) in the range 0-1 by using an inverse logit transformation: $g(E) = e^E/(1+e^E)$.
+
+### Implementing the model in R
+To implement the storage effect model in R we can make a function called ``get_new_n`` that takes parameters we define and the number of current seeds in the seedbank ($N_{t}$) to calculate the expected numnber of seeds at the next time step ($N_{t+1}$). Here we go.
+
+```{r, echo=TRUE}
+get_new_n <- function(params, N1, N2){
+  # Define parameters from the params list
+  s1 <- params$s1
+  s2 <- params$s2
+  g1 <- params$g1
+  g2 <- params$g2
+  lambda1 <- params$lambda1
+  lambda2 <- params$lambda2
+  alpha11 <- params$alpha11
+  alpha12 <- params$alpha12
+  alpha22 <- params$alpha22
+  alpha21 <- params$alpha21
+  
+  # Simulate the model one time step
+  newN1 <- s1*(1-g1)*N1 + ((lambda1*g1*N1) / (1 + alpha11*g1*N1 + alpha12*g2*N2))
+  newN2 <- s2*(1-g2)*N2 + ((lambda2*g2*N2) / (1 + alpha21*g1*N1 + alpha22*g2*N2))
+  
+  # Collect the output and return the values
+  newNs <- c(newN1, newN2)
+  return(newNs)
+}
+```
+Let's go through this line-by-line. The very first line says we want to create a function called ``get_new_n`` with ``params``, ``N1``, and ``N2`` as required inputs. We then have a bunch lines that just take the parameters fed in by ``params`` and redefine them as simpler variables for the equation (e.g., ``s1 <- params$s1`` is just setting ``s1`` equal to whatever was fed in via the ``params`` list for ``s1``). Then we actually get to simulating the model one time step. Notice how the R code version perfectly mirrors the equations we presented above. Here they are together for species 1 ($N_{1}$):
+
+$$
+N_{1,t+1} = s_{1}[1-g_{1}(E_{t})]N_{1,t} + \frac{\lambda_{1}g_{1}(E_{t})N_{1,t}}{1+ \alpha_{11}g_{1}(E_{t})N_{1,t} + \alpha_{12}g_{2}(E_{t})N_{2,t}}
+$$
+```{r echo=TRUE, eval=FALSE}
+newN1 <- s1*(1-g1)*N1 + ((lambda1*g1*N1) / (1 + alpha11*g1*N1 + alpha12*g2*N2))
+```
+
+The ``get_new_n`` function only calculates $N_{t+1}$, so to run this model for several time steps we need to embed the function in a loop and redefine $N$ and $g$ as we go to make it dynamic. Why does $g$ vary through time rather then being fixed? For the storage effect to operate we need $g_{1}(E_{t})$ to covary with $g_{2}(E_{t})$ through time so that each species has unique germination rates each year due to environmental fluctuations (defined by $E$). To simulate these values we'll define another function (``get_g_series``) that creates a series of germination rates (a series as long as the simulation we wish to run) based on the method we described above of making random draws from a multivariate normal distribution. Here's how we do this in R:
+
+```{r echo=TRUE, eval=FALSE}
+get_g_series <- function(sigE, rho, nTime){
+  varcov <- matrix(c(sigE, rho*sigE, rho*sigE, sigE), 2, 2) # variance-covariance matrix
+  e <- rmvnorm(n = nTime, mean = c(0,0), sigma = varcov) # make 'n' random draws
+  g <- exp(e) / (1+exp(e)) # inverse-logit transformation to convert to rates
+  return(g)
+}
+```
+
+So we created a function called ``get_g_series`` that requires ``sigE`` (the environmental variance), ``rho`` (the correlation between species' germination rates), and ``nTime`` (the number of time steps for which we will simulate the model). Together, the ``get_new_n`` and ``get_g_series`` define the core of the model. All that's left is to define the non-varying parameters and the initial seed bank conditions.
+
+```{r echo=TRUE, eval=FALSE}
+params <- list() # initialize an empty list to hold parameters
+# set all global parameters
+params$s1 <- 0.5 #spp 1 seedling survival
+params$s2 <- 0.5 #spp 2 seedling survival
+params$lambda1 <- 100 #spp 1 per capita fecundity
+params$lambda2 <- 100 #spp 2 per capita fecundity
+params$alpha11 <- 1 #spp 1 per capita competitive effect on itself
+params$alpha12 <- 1 #spp 2 per capita competitive effect on spp 1
+params$alpha21 <- 1 #spp 2 per capita competitive effect on itself
+params$alpha22 <- 1 #spp 1 per capita competitive effect on spp 2
+
+# set parameters for germination rate series
+sigE <- 2 #environmental variance
+rho <- 0 #correlation between species' germination rates
+
+# set simulation length and initial seed bank numbers
+timeSim <- 100 #number of years to simulate
+initialN <- 100 #initial seed abundance in the seed bank (for both species)
+```
+
+Then all that's left is to simulate the model through time. We do this by first getting a series of germination rates via the ``get_g_series`` function and then embedding the ``get_new_n`` function within a loop to update seed bank abundance based on that year's germination rates, the previous year's seed abundance, and the model parameters.
+
+```{r echo=TRUE, eval=FALSE}
+Nsave <- matrix(nrow=timeSim, ncol=2)
+Nsave[1,] <- initialN
+
+for(t in 2:timeSim){
+  # Set seed abundances to previous year's abundance
+  N1 <- Nsave[t-1,1]
+  N2 <- Nsave[t-1,2]
+  
+  # Set germination rates from the germination rate vectors
+  params$g1 <- gVec1[t]
+  params$g2 <- gVec2[t]
+  
+  # Call the model function
+  newN <- get_new_n(params = params, N1 = N1, N2 = N2)
+  
+  # Save the new seed abundance values
+  Nsave[t,1] <- newN[1]
+  Nsave[t,2] <- newN[2]
+}
+```
+
+### Play with the model parameters
+
+```{r, echo=FALSE}
+library(shiny)
+library(EcoEvoApps)
+shinyAppDir(
+#   "/Users/atredenn/Repos/EcoEvoApps/inst/examples/03_StorageEffect/",
+  system.file("examples/03_StorageEffect", package="EcoEvoApps"),
+  options=list(
+    width="100%", height=550
+  )
+)
+```
+
+
