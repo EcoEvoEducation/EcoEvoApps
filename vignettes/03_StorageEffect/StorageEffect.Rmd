@@ -1,15 +1,16 @@
-```{r, echo=FALSE, message=FALSE}
-library(shiny)
-library(shinyapps)
-#devtools::install_github("EcoEvoEducation/EcoEvoApps")
-
-```
 ---
 title: "Storage Effect Example"
 author: "Brittany Teller and Andrew Tredennick"
 output: html_document
 runtime: shiny
 ---
+
+```{r, echo=FALSE, message=FALSE}
+library(shiny)
+library(shinyapps)
+#devtools::install_github("EcoEvoEducation/EcoEvoApps")
+
+```
 
 ### Introduction
 This tutorial walks you through the logic and math behind coexistence of two annual plants via the storage effect ([see here for Wikipedia description](http://en.wikipedia.org/wiki/Storage_effect)). The basic idea behind the storage effect is that two species (or more) can coexist in fluctuating environment because no one species "performs" best under all environmental conditions. So, species partition their niche space in time rather than in space or resources. There are three conditions that must be met for the storage effect to operate:
