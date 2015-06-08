@@ -140,9 +140,10 @@ for(t in 2:timeSim){
 
 ```{r, echo=FALSE}
 library(shiny)
-library(shinyapps)
+# library(shinyapps)
 # devtools::install_github("EcoEvoEducation/EcoEvoApps")
 library(ggplot2)
+library(mvtnorm)
 library(EcoEvoApps)
 shinyAppDir(
 #   "/Users/atredenn/Repos/EcoEvoApps/inst/examples/03_StorageEffect/",
