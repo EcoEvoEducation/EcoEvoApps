@@ -1,0 +1,118 @@
+```{r, echo=FALSE, message=FALSE}
+library(shiny)
+library(shinyapps)
+library(png)
+
+#devtools::install_github("EcoEvoEducation/EcoEvoApps")
+
+```
+---
+title: "Population Growth"
+author: "Brittany Teller and Andrew Tredennick"
+output: html_document
+runtime: shiny
+---
+
+When a species is of conservation concern, we are often interested to find out whether populations can persist in the long term. In order to examine population viabiliy, we can use demographic information to model population dynamics.
+
+Usually we start with the idea that in any population, the number of individuals at any particular time is governed by the initial population size, N0, and the number of births, deaths, immigrations, and emigarations occur.
+
+```{r fig.width=4, fig.height=3.5, echo=FALSE, fig.align='center'}
+img <- readPNG("figures/Fig1.png")
+#grid.raster(img)
+```
+
+In the simplest approach, we can use a disctrete-time model and this demographic information to predict the expected size of a population over time.
+
+When we consider a closed population, where there are no immigarants joining the population or emmigrants leaving the population, only births and deaths affect the number of inidividuals in the population.
+
+For simplicity, we don't explicitly address deaths, and instead we examine suvivorship ($s$), or the per capita probability of suriving in a particular timestep. $s$ is still calculated with the per capita death rate in mind:
+
+## $$s=1-d$$
+
+Then population size in each timestep is a function of the population size at the time before ($N(t)$), survivroship ($s$), and the per capita birth rate ($b$) as shown in the equation below.
+
+## $$N(t+1)=N(t)[s+b]$$
+
+To program these dynamics, we start by considering a population with an initial population size of 100, a survivorship rate of s=.8, and a birthrate of .2:
+
+```{r, echo=FALSE}
+inputPanel(
+  sliderInput("N0", label = "Initial Population size:",
+              min = 10, max = 100, value = 50, step = 10),
+  
+  sliderInput("s", label = "Survivorship:",
+              min = 0.2, max = 0.9, value = .8, step = 0.1),
+  
+  sliderInput("b", label = "Birth rate:",
+              min = 0.2, max = 0.9, value = .2, step = 0.1)
+)
+
+renderPlot({
+  nSteps<-50
+  time<-seq(from=1, to=nSteps, by=1)
+  
+  Nvec<-c(input$N0, rep(NA, times=nSteps-1))
+  
+  for (i in 2:nSteps){
+    Nvec[i]<-Nvec[i-1]*(input$s+input$b)
+    }
+  
+  plot(Nvec~time, ylab="Number of individuals (N)", ylim=c(0,100), type="o")
+    
+})
+```
+
+As you can see, smaller populations go extinct more quickly, and take more time to grow than large populations with the same survivorship and birth rates. Futhermore, in order for a population to remain viable in the long term, survivorship and births must be balanced so that $s+b=1$. The term  $\lambda$  is often used to summarize the sum of per capita survivorship and births.
+
+## $$\lambda= s+b$$
+
+So, instead of changing s and b one at a time, we can use $\lambda$ in our model to summarize the dynamics of the population:
+
+```{r, echo=FALSE}
+inputPanel(
+  sliderInput("N02", label = "Initial Population size:",
+              min = 10, max = 100, value = 50, step = 10),
+  
+  sliderInput("lambda", label = "Population Growth Rate:",
+              min = 0.2, max = 1.8, value = 1, step = 0.1)
+
+)
+
+renderPlot({
+  nSteps<-50
+  time<-seq(from=1, to=nSteps, by=1)
+  
+  Nvec<-c(input$N02, rep(NA, times=nSteps-1))
+  
+  for (i in 2:nSteps){
+    Nvec[i]<-Nvec[i-1]*(input$lambda)
+    }
+  
+  plot(Nvec~time, ylab="Number of individuals (N)", ylim=c(0,100), type="o")
+    
+})
+```
+
+
+You can program these plots yourself in R using the code below:
+
+```{r, echo=TRUE, fig.show='hide'}
+  
+  N0<-50   #The intitial population size
+  nSteps<-50    #The number of time steps
+  lambda<-1     # Th epopulation growth rate, lambda
+
+  Nvec<-c(N0, rep(NA, times=nSteps-1))  #Create an open vector for data
+  
+  #Run a loop that considers each time step (t) as a function of the time step before it (t-1) and lambda
+  for (t in 2:nSteps){
+    Nvec[t]<-Nvec[t-1]*(lambda)
+    }
+  
+  time<-seq(from=1, to=nSteps, by=1)  #Create a vector of time steops for plotting
+  
+  plot(Nvec~time, ylab="Number of individuals (N)", ylim=c(0,100), type="o")  #plot the results
+
+```
+
