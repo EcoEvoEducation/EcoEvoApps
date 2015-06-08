@@ -1,11 +1,3 @@
-```{r, echo=FALSE, message=FALSE}
-library(shiny)
-library(shinyapps)
-library(png)
-
-#devtools::install_github("EcoEvoEducation/EcoEvoApps")
-
-```
 ---
 title: "Population Growth"
 author: "Brittany Teller and Andrew Tredennick"
@@ -13,14 +5,19 @@ output: html_document
 runtime: shiny
 ---
 
+```{r, echo=FALSE, message=FALSE}
+library(shiny)
+library(shinyapps)
+library(png)
+library(rmarkdown)
+#devtools::install_github("EcoEvoEducation/EcoEvoApps")
+
+```
 When a species is of conservation concern, we are often interested to find out whether populations can persist in the long term. In order to examine population viabiliy, we can use demographic information to model population dynamics.
 
-Usually we start with the idea that in any population, the number of individuals at any particular time is governed by the initial population size, N0, and the number of births, deaths, immigrations, and emigarations occur.
+Usually we start with the idea that in any population, the number of individuas at any particular time is governed by the initial population size, $N0$, and the number of births, deaths, immigrations, and emigarations occur.
 
-```{r fig.width=4, fig.height=3.5, echo=FALSE, fig.align='center'}
-img <- readPNG("figures/Fig1.png")
-#grid.raster(img)
-```
+<img src="figures/Fig1.png" alt="Figure 1" style="width: 400px;"/>
 
 In the simplest approach, we can use a disctrete-time model and this demographic information to predict the expected size of a population over time.
 
