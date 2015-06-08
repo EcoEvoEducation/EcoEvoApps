@@ -1,0 +1,28 @@
+---
+title: "Storage Effect Example"
+author: "Brittany Teller and Andrew Tredennick"
+output: html_document
+runtime: shiny
+---
+```{r, echo=FALSE, message=FALSE}
+library(shiny)
+library(shinyapps)
+#devtools::install_github("EcoEvoEducation/EcoEvoApps")
+```
+### Introduction
+SIR model...
+
+### Play with the model parameters
+
+```{r, echo=FALSE}
+library(ggplot2)
+library(EcoEvoApps)
+shinyAppDir(
+  system.file("examples/SIR", package="EcoEvoApps"),
+  options=list(
+    width="100%", height=550
+  )
+)
+```
+
+
