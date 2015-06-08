@@ -15,6 +15,7 @@ SIR model...
 ### Play with the model parameters
 
 ```{r, echo=FALSE}
+library(deSolve)
 library(ggplot2)
 library(reshape2)
 library(EcoEvoApps)
