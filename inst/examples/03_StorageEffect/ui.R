@@ -6,7 +6,7 @@
 #
 library(shiny)
 library(markdown)
-library(ggplot2)
+# library(ggplot2)
 
 shinyUI(navbarPage("Chesson Tutorial",
                    tabPanel("The Storage Effect",

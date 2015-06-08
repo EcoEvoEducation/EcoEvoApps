@@ -142,7 +142,7 @@ for(t in 2:timeSim){
 library(shiny)
 library(shinyapps)
 # devtools::install_github("EcoEvoEducation/EcoEvoApps")
-library(ggplot2)
+# library(ggplot2)
 library(EcoEvoApps)
 shinyAppDir(
 #   "/Users/atredenn/Repos/EcoEvoApps/inst/examples/03_StorageEffect/",
