@@ -37,7 +37,7 @@ shinyServer(function(input, output, session) {
       xlab("Time Since Initial Infection (years)") +
       ylab("Percent of Population (%)") +
       theme_bw() +
-      theme(legend.position = c(0.75,0.75))+
+      theme(legend.position = c(0.75,0.85))+
       scale_color_manual(values=myCols, name="")
     print(theplot)
   })
