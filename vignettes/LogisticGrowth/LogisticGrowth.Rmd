@@ -108,7 +108,7 @@ inputPanel(
               min = 50, max = 1000, value = 50, step = 50),
   
   sliderInput("lambda2", label = "Population Growth Rate:",
-              min = -.5, max = 3.1, value = 2.1, step = 0.1),
+              min = -.5, max = 3.1, value = 2.7, step = 0.1),
   
   sliderInput("K2", label = "Carrying capacity:",
               min = 100, max = 1000, value = 500, step = 100)
