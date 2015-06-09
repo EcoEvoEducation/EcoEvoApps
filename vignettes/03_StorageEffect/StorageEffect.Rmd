@@ -17,7 +17,7 @@ This tutorial walks you through the logic and math behind coexistence of two ann
 
 1. **Buffered population growth**: the species must have a way to avoid population declines during "bad" years. Many species achieve this by having long life spans with adult stages that are relatively unaffected by "bad" conditions. For example, adult trees tend to not be affected by single-year droughts or grass fires. So even all the seedlings in a population are killed by fire or drought, the adults remain to buffer the population until conditions improve.
 
-2. **Species-specific responses to environmental conditions**: species must have unique responses to environmental conditions so that "good" and "bad" years are partitioned among species. For example, annual plant species tend to have unique optimal temperatures for germination so that in any given year one species will have relatively high germination compared to other species.
+2. **Species-specific responses to environmental conditions**: species must have non-identical responses to environmental conditions so that "good" and "bad" years are partitioned among species (to some extent). For example, annual plant species tend to have unique optimal temperatures for germination so that in any given year one species will have relatively high germination compared to other species. The storage effect can operate so long as the correlation between species' environmental responses are not perfectly correlated. But the strength of the storage effect increases as their correlation decreases.
 
 3. **Covariance between environment and competition**: basically, the idea here is that competition must be stronger in a year that is good for a species compared to a year that is bad. In most cases this occurs, in part, when condition 2 is satisfied because it partitions intraspecific and interspecific competition into different years. So when a spceies experiences a good year, intraspecific competition must be more strongly negative than in a bad year to stabilize coexistence. This tends to happen because in good years the population increases and with it competition since the overall competitive effect is $\alpha N$.
 
@@ -37,7 +37,7 @@ $$
 | $\lambda$ | per capita fecundity (number of seeds produced per individual plant) |
 | $\alpha$ | per capital competitive effect ($\alpha_{ii}$ is intraspecific; $\alpha_{ij}$ is interspecific) |
 
-Key to having the storage effect operate in this annual plant model with two species is that each species has unqiqe responses to the environment. In this model we include this environmental dependence throught the germination term $g$ that is dependent on the environment $E$ (this is written mathematically as $g(E_{t})$). So, first we need to simulate a randomly fluctuating environment. To do this we can make random draws from a multivariate normal distribution with means of 0 and variance-covariance structure of
+Key to having the storage effect operate in this annual plant model with two species is that each species has unperfectly correlated responses to the environment. In this model we include this environmental dependence throught the germination term $g$ that is dependent on the environment $E$ (this is written mathematically as $g(E_{t})$). So, first we need to simulate a randomly fluctuating environment. To do this we can make random draws from a multivariate normal distribution with means of 0 and variance-covariance structure of
 
 $$
 \begin{align}

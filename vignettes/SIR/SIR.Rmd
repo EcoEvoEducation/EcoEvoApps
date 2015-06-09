@@ -56,4 +56,5 @@ shinyAppDir(
 )
 ```
 
-
+### Implement the model in R
+To implement the SIR model in R we can make a function called ``updateSIR`` that takes parameters we define and the number of individuals in each state ($S_{t}$, $I_{t}$, and $R_{t}$) to calculate the rate of change between states, and thus the number of individuals in each state at the next time step. We are going to model disease dynamics in continuous rather than discrete time since disease transmission is an instantaneous rate. To do this we use the ordinary difference equation solver ``deSolve`` in R.
