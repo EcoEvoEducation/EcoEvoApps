@@ -10,6 +10,21 @@ library(shinyapps)
 #devtools::install_github("EcoEvoEducation/EcoEvoApps")
 ```
 ### Introduction
+Here's the model
+
+$$
+\frac{dN_{1}}{dt} = r_{1}N_{1}\left(\frac{K_{1}-N_{1}-\alpha_{2,1}N_{2}}{K_{1}}\right)
+$$
+
+$$
+\frac{dN_{2}}{dt} = r_{2}N_{2}\left(\frac{K_{2}-N_{2}-\alpha_{1,2}N_{1}}{K_{2}}\right)
+$$
+
+And, just in case you ever see this in a paper, it is often written in the multispecies case as:
+
+$$
+\frac{dN_{i}}{dt} = r_{i}N_{i}\left(\frac{K_{i}-N_{i}- \sum_{i \neq j}^S \alpha_{j,i}N_{j}}{K_{i}}\right)
+$$
 
 To keep everything clear, here is a table of model states and parameters.
 
