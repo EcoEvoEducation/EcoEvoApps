@@ -31,9 +31,20 @@ $A_{t+1}=J_t*g$
 
 If you remember from your algebra classes, this problem can be represented by a system of equations because information from one equation can be used to solve the other, and vice-versa. Alternatively, we can use **matrix models** to summarize the dynamics of this population.
 
+To use a matrix model, we combine the information into rows and columns that represent transitions.
 
+$\left( \begin{array}{c}
+J \\
+A \end{array} \right) = 
+ \left( \begin{array}{cc}
+0 & f \\
+g & 0 \end{array} \right)$
 
+In this format, each transition is accounted for: the upper left quadrant of the matrix represents reproduction (Adults to Juveniles), the lower right represents growth (Juveniles to Adults), and the other two are set to zero, becasue adults may not stay adults and juveniles may not stay juveniles.
 
+<div align="center"><img src="figures/figure2.png" alt="Figure 1" style="width: 200px;"/></div>
+
+Matricies are always read from the top and to the left in this way (see figure 2), but can be expanded to include more than two stages. 
 
 
 
