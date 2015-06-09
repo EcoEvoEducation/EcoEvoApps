@@ -1,0 +1,43 @@
+---
+title: "Lotka-Volterra Model of Species Competition"
+author: "Andrew Tredennick and Brittany Teller"
+output: html_document
+runtime: shiny
+---
+```{r, echo=FALSE, message=FALSE}
+library(shiny)
+library(shinyapps)
+#devtools::install_github("EcoEvoEducation/EcoEvoApps")
+```
+### Introduction
+
+To keep everything clear, here is a table of model states and parameters.
+
+| Parameter | Definition |
+|---|---|
+| $S$ | The number of susceptible (yet-to-be infected) individuals in the population | 
+| $I$ | The number of infected individuals in the population |
+| $R$ | The number of recovered indviduals in the population (recovered and now immune) |
+| $\beta$ | Transition rate from susceptible to infected; function of disease infectiousness and individual contact rate |
+| $r$ | Recovery rate |
+| $\eta$ | Disease infectiousness; the probability that contact results in infection |
+| $\tau$ | Individual contact rate; the rate at which individuals come into contact |
+
+
+### Play with the model parameters
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(deSolve)
+library(ggplot2)
+library(reshape2)
+library(gridExtra)
+library(EcoEvoApps)
+shinyAppDir(
+  system.file("examples/LotkaVolterra", package="EcoEvoApps"),
+  options=list(
+    width="100%", height=550
+  )
+)
+```
+
+### Implement the model in R
