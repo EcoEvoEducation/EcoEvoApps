@@ -1,6 +1,6 @@
 ---
 title: "Disease Transmission Model (Epidemiology)"
-author: "Brittany Teller and Andrew Tredennick"
+author: "Andrew Tredennick and Brittany Teller"
 output: html_document
 runtime: shiny
 ---
@@ -56,4 +56,85 @@ shinyAppDir(
 )
 ```
 
+### Implement the model in R
+To implement the SIR model in R we can make a function called ``updateSIR`` that takes parameters we define and the number of individuals in each state ($S_{t}$, $I_{t}$, and $R_{t}$) to calculate the rate of change between states, and thus the number of individuals in each state at the next time step. We are going to model disease dynamics in continuous rather than discrete time since disease transmission is an instantaneous rate. To do this we use the ordinary difference equation solver ``deSolve`` in R.
 
+Let's start by defining a function that matches the equations above:
+
+```{r sirfxn, echo=TRUE, eval=FALSE}
+####
+##  Define function for deSolve
+####
+# Must contain time (t), a state variable list (SIR), 
+#   and the parameter values (parms)
+updateSIR <- function(t, SIR, parms){
+  with(as.list(c(SIR, parms)), {
+    dSdt <- -beta*S*I
+    dIdt <- beta*S*I - r*I
+    dRdt <- r*I
+    list(c(dSdt, dIdt, dRdt)) #output
+  })
+}
+```
+
+Now that we have the function, we can set the model parameters:
+```{r modelparams, echo=TRUE, eval=FALSE}
+# Model parameters
+tau <- 0.01 # contact rate
+eta <- 0.01 # infectiousness
+beta <- tau*eta # transmission rate
+r <- 0.1 # recovery rate
+
+# Initial states (start with 1 infected individual)
+S0 <- 100
+I0 <- 1
+R0 <- 0
+SIR <- c(S=S0,I=I0,R=R0) # initial state vector
+totpop <- sum(SIR) # total population size
+
+# Set up parameter list for function
+parms <- list(
+  beta = beta,
+  r = r)
+
+# Set model runtime
+simtime <- 200 # number of time steps
+odetime <- seq(1,simtime,by=1)
+```
+
+And now we run the model using ``deSolve``:
+```{r runmodel, echo=TRUE, eval=FALSE}
+# Install library if necessary
+# install.packages("deSolve")
+library(deSolve)
+out <- as.data.frame(ode(y = SIR, times = odetime,
+                         func = updateSIR, parms = parms))
+```
+
+Last thing to do is format the output and plot it:
+```{r makeplot, echo=TRUE, eval=FALSE}
+####
+##  Format data as long data frame for ggplot
+####
+mod.df <- as.data.frame(out)
+colnames(mod.df) <- c("Time", "Susceptible", "Infected", "Recovered")
+
+# install.packages("reshape2")
+library(reshape2)
+df.m <- melt(mod.df, id.vars="Time")
+df.m$value <- df.m$value/totpop*100
+myCols <- c("#277BA8", "#7ABBBD", "#AED77A")
+
+####
+##  Make the plot of results
+####
+# install.packages("ggplot2")
+library(ggplot2)
+ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
+  geom_line(size=1.5) +
+  xlab("Time Since Initial Infection (years)") +
+  ylab("Percent of Population (%)") +
+  theme_bw() +
+  theme(legend.position = c(0.75,0.85))+
+  scale_color_manual(values=myCols, name="")
+```
