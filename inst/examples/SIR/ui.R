@@ -46,7 +46,5 @@ shinyUI(navbarPage("SIR",tabPanel("Disease Transmission Model",
                                  max = 200,
                                  value = 0, step=1)),
                    mainPanel(
-                     helpText("Some legend"),
-                     plotOutput("SIR"),
-                     helpText("Here is some text."))
+                     plotOutput("SIR"))
                    ))))
