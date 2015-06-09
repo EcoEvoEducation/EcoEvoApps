@@ -148,7 +148,9 @@ renderPlot({
   plot(curveVec~baseVec, ylim=c(0,1000), xlim=c(0,1000), ylab="N1", xlab="N2", type="l", lwd=2)
   
   for (j in 1:go) {
-    arrows(Nvec[j],Nvec[j+1],Nvec[j+1],Nvec[j+2], 
+    arrows(Nvec[j],Nvec[j+1],Nvec[j+1],Nvec[j+1], 
+             col=jet.colors(nSteps)[j], length=.25, lwd=1.3)
+        arrows(Nvec[j+1],Nvec[j+1],Nvec[j+1],Nvec[j+2], 
              col=jet.colors(nSteps)[j], length=.25, lwd=1.3)
     }
   
