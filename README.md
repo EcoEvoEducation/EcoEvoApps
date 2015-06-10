@@ -15,7 +15,7 @@ If you would like to add to our list of available models with your own app, we a
 5. Create a [pull request](http://help.github.com/articles/using-pull-requests/)
 
 ## License (MIT)
-Copyright (c) <2015> <Brittany Teller and Andrew Tredennick>
+Copyright (c) 2015 Brittany Teller and Andrew Tredennick
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
