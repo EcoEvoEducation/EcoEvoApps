@@ -10,7 +10,21 @@ library(shinyapps)
 #devtools::install_github("EcoEvoEducation/EcoEvoApps")
 ```
 ### Introduction
-Here's the model
+In the logistic model of population growth we saw that resource limitation can be included in an abstract way by including a carrying capacity for a population. But, what if there are also other species competiting for the same resources? Depending on the strength of competition, competiting species can reduce equilibrium population abundance below the carrying capacity. To jog your memory, here is the continuous time version of logistic growth:
+
+$$
+\frac{dN_1}{dt} = r_1N_1\left(\frac{K_1-N_1}{K_1}\right)
+$$
+
+where *r* is the intrinsic rate of growth, *N* is the population abundance, and *K* is the carrying capacity. The effect of $\left(\frac{K-N}{K}\right)$ is intraspecific competition (density-dependence). To include the effect of another species, we assume that growth is further limited by a simple function of the number of the other species, $\alpha_{2,1}N_2$.
+
+$$
+\frac{dN_1}{dt} = r_1N_1\left(\frac{K_1-N_1-\alpha_{2,1}N_2}{K_1}\right)
+$$
+
+where the new parameter $\alpha_{2,1}$ is the interspecific competition coefficient describing the the effect of species 2 on species 1. Now the term $\left(\frac{K_1-N_1-\alpha_{2,1}N_2}{K_1}\right)$ includes both inter and intraspecific competition. If $\alpha_{2,1}=1$, the two species are essentially identical -- the effect of species 2 on species 1 is the same as species 1 has on itself. However, if $\alpha_{2,1}=3$, for example, then each individual of species 2 depresses the growth of species 1 by the same amount as 3 individuals of species 1. So, $\alpha$ is the per capita effect of species 2 on species 1, relative to the effect of species 1 on itself. If $\alpha_{2,1} > 1$, interspecific competition is more important than intraspecific competition. If $\alpha_{2,1} < 1$, intraspecific competition is more important than interspecific competition.
+
+Here's the model written in continuous time for the two species case:
 
 $$
 \frac{dN_{1}}{dt} = r_{1}N_{1}\left(\frac{K_{1}-N_{1}-\alpha_{2,1}N_{2}}{K_{1}}\right)
@@ -20,23 +34,31 @@ $$
 \frac{dN_{2}}{dt} = r_{2}N_{2}\left(\frac{K_{2}-N_{2}-\alpha_{1,2}N_{1}}{K_{2}}\right)
 $$
 
-And, just in case you ever see this in a paper, it is often written in the multispecies case as:
+
+For the two species to coexistence, intraspecific competition must be greater than interspecific competition. With a little algebra (not shown here), it can be shown that coexistence is possibly when the following inequality is met:
+
+$$
+\frac{1}{\alpha_{1,2}} > \frac{K_1}{K_2} > \alpha_{2,1}
+$$
+
+#### The multispecies equation
+Just in case you ever see this in a paper, it is often written in the multispecies case as:
 
 $$
 \frac{dN_{i}}{dt} = r_{i}N_{i}\left(\frac{K_{i}-N_{i}- \sum_{i \neq j}^S \alpha_{j,i}N_{j}}{K_{i}}\right)
 $$
 
+where *S* is the number of species in the community.
+
+#### Table of parameters and states
 To keep everything clear, here is a table of model states and parameters.
 
 | Parameter | Definition |
 |---|---|
-| $S$ | The number of susceptible (yet-to-be infected) individuals in the population | 
-| $I$ | The number of infected individuals in the population |
-| $R$ | The number of recovered indviduals in the population (recovered and now immune) |
-| $\beta$ | Transition rate from susceptible to infected; function of disease infectiousness and individual contact rate |
-| $r$ | Recovery rate |
-| $\eta$ | Disease infectiousness; the probability that contact results in infection |
-| $\tau$ | Individual contact rate; the rate at which individuals come into contact |
+| $N_{i}$ | The abundance (or biomass, depending on units) of species *i* | 
+| $r_{i}$ | Species *i*'s intrinsic rate of growth |
+| $K_{i}$ | Species *i*'s carrying capacity |
+| $\alpha_{ji}$ | Interspecific competition coefficient (effect of species *j* on species *i*) |
 
 
 ### Play with the model parameters
@@ -56,3 +78,93 @@ shinyAppDir(
 ```
 
 ### Implement the model in R
+To implement the Lotka-Volterra model in R we can make a function called ``updateLV`` that takes parameters we define and the number of individuals for each species at each time step *t* ($N_{1,t}$, $N_{2,t}) to calculate the rate of change, and thus the number of individuals for each species at the next time step. We are going to model populations dynamics in continuous rather than discrete time. To do this we use the ordinary difference equation solver ``deSolve`` in R.
+
+Let's start by defining a function that matches the equations above:
+
+```{r sirfxn, echo=TRUE, eval=FALSE}
+####
+##  Define function for deSolve
+####
+# Must contain time (t), a state variable list (N), 
+#   and the parameter values (parms)
+updateLV <- function(t, N, parms){
+  with(as.list(c(N, parms)), {
+    dN1dt <- r[1]*N1*((K[1]-N1-a[1]*N2)/K[1])
+    dN2dt <- r[2]*N2*((K[2]-N2-a[2]*N1)/K[2])
+    list(c(dN1dt, dN2dt)) #output
+  })
+}
+```
+
+Now that we have the function, we can set the model parameters:
+```{r modelparams, echo=TRUE, eval=FALSE}
+# Model parameters
+r <- c(1.2, 1.2) # intrinsic growth rates
+K <- c(500, 500) # carrying capacities
+a <- c(1, 1) # competition coefficients
+
+# Initial states
+N10 <- 100
+N20 <- 100
+SIR <- c(N1=N10,N2=N20) # initial state vector
+
+# Set up parameter list for function
+parms <- list(
+  r = r,
+  K = K,
+  a = a)
+
+# Set model runtime
+simtime <- 200 # number of time steps
+odetime <- seq(1,simtime,by=1)
+```
+
+And now we run the model using ``deSolve``:
+```{r runmodel, echo=TRUE, eval=FALSE}
+# Install library if necessary
+# install.packages("deSolve")
+library(deSolve)
+out <- as.data.frame(ode(y = N, times = odetime,
+                         func = updateLV, parms = parms))
+```
+
+Last thing to do is format the output and plot it:
+```{r makeplot, echo=TRUE, eval=FALSE}
+####
+##  Format data as long data frame for ggplot
+####
+mod.df <- as.data.frame(model)
+colnames(mod.df) <- c("Time", "N1", "N2")
+
+#install.packages("reshape2")
+library(reshape2)
+df.m <- melt (mod.df, id.vars="Time")
+myCols <- c("#277BA8", "#7ABBBD")
+ymax <- max(df.m$value)+20
+
+#install.packages("ggplot2")
+library(ggplot2)
+
+# Plot population time series
+theplot <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
+  geom_line(size=1.5) +
+  xlab("Time") +
+  ylab("Population size (abundance)") +
+  theme_bw() +
+  theme(legend.position = c(0.75,0.85))+
+  scale_color_manual(values=myCols, name="")+
+  scale_y_continuous(limits=c(0,ymax))
+
+# Plot the state space through time
+statespace <- ggplot(data=mod.df, aes(x=log(N1), y=log(N2), color=Time))+
+  geom_point(size=3, alpha=0.5)+
+  theme_bw()+
+  scale_colour_gradientn(colours = rainbow(7))
+
+# Combine the 2 plots
+#install.packages("gridExtra")
+library(gridExtra)
+comb <- grid.arrange(theplot, statespace, ncol=1, nrow=2)
+print(comb)
+```

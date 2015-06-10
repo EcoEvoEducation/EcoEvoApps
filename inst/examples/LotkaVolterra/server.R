@@ -29,13 +29,15 @@ shinyServer(function(input, output, session) {
     colnames(mod.df) <- c("Time", "N1", "N2")
     df.m <- melt (mod.df, id.vars="Time")
     myCols <- c("#277BA8", "#7ABBBD")
+    ymax <- max(df.m$value)+20
     theplot <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
       geom_line(size=1.5) +
       xlab("Time") +
       ylab("Population size (abundance)") +
       theme_bw() +
       theme(legend.position = c(0.75,0.85))+
-      scale_color_manual(values=myCols, name="")
+      scale_color_manual(values=myCols, name="")+
+      scale_y_continuous(limits=c(0,ymax))
     
     statespace <- ggplot(data=mod.df, aes(x=log(N1), y=log(N2), color=Time))+
       geom_point(size=3, alpha=0.5)+
