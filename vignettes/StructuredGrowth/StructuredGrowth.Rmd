@@ -15,9 +15,9 @@ library(rmarkdown)
 ```
 
 ### Introduction
-Most populations in nature are not homogenous because individuals differ from one another in size or age. Since these characteristics can affect rates of survival, growth, and reproduction, we often want to account for these effects.
+In most populations, individuals differ from one another in size or age. Usually these differences affect rates of survival, growth, and reproduction. For example in many plant species, small plants have a lower probability of survival than large plants. When small individuals are more abundant than large individuals, a simple average of survival probability is overly simplistic. In situations like these, we need to account for differences in transition rates due to age or stage.
 
-Take for example, a system in which indviduals are either adults, $A$, or juveniles, $J$. For simplictiy, we **assume** that individuals may only persist as adults or juveniles for one timestep. 
+In a system in which individuals are either adults, $A$, or juveniles, $J$. For simplictiy, we **assume** that individuals may only persist as adults or juveniles for one timestep. 
 
 <div align="center"><img src="figures/figure1.png" alt="Figure 1" style="width: 400px;"/></div>
 
@@ -29,7 +29,7 @@ Similarly, the number of adults in each timestep, $A$, is a function of the numb
 
 $A_{t+1}=J_t*g$
 
-If you remember from your algebra classes, this problem can be represented by a system of equations because information from one equation can be used to solve the other, and vice-versa. Alternatively, we can use **matrix models** to summarize the dynamics of this population.
+If you remember from your algebra classes, this problem can be represented by a system of equations, because information from one equation can be used to solve the other, and vice-versa. Alternatively, we can use **matrix models** to summarize the dynamics of this population.
 
 To use a matrix model, we combine the information into rows and columns that represent transitions.
 
@@ -40,174 +40,96 @@ A \end{array} \right) =
 0 & f \\
 g & 0 \end{array} \right)$
 
-In this format, each transition is accounted for: the upper left quadrant of the matrix represents reproduction (Adults to Juveniles), the lower right represents growth (Juveniles to Adults), and the other two are set to zero, becasue adults may not stay adults and juveniles may not stay juveniles.
+In this *transition matrix*, each transition is accounted for: the upper left quadrant of the matrix represents reproduction (Adults to Juveniles), the lower right represents growth (Juveniles to Adults), and the other two are set to zero, because adults may not stay adults, and juveniles may not stay juveniles.
 
-<div align="center"><img src="figures/figure2.png" alt="Figure 1" style="width: 200px;"/></div>
+<div align="center"><img src="figures/figure2.png" alt="Figure 2" style="width: 200px;"/></div>
 
-Matricies are always read from the top and to the left in this way (see figure 2), but can be expanded to include more than two stages. 
+Demographic matricies are always read from the top and to the left in this way (see figure 2), but can be expanded to include more than two stages. They are also always square, and the elements are always positive. There are two common forms of demographic matricies; leslie matricies for populations that are age-structured (individuals must progress due to age), and leftkovitch matricies where individuals may both progress and retrogress between stages. A markov matrix is different, because death rates are explictly accounted for, and we will not address those kinds of matricies here.
 
-
+Once a demographic matrix is constructed we can simulate the dynamics of the population in discrete time, or we can use the matrix to calculate asymptotic (the long-term) behavior. In a deterministic framework, both approaches should ultimately result in the same answer.
+ 
+Let's simulate the dynamics in discrete time with two seperate equations (solid lines) and with a matrix (dashed lines): 
 
 ```{r, echo=FALSE}
 inputPanel(
-  sliderInput("N01", label = "Initial Population size:",
-              min = 50, max = 500, value = 50, step = 50),
+  sliderInput("J01", label = "Initial number of juveniles:",
+              min = 0, max = 150, value = 50, step = 10),
   
-  sliderInput("lambda", label = "Population Growth Rate:",
-              min = -.2, max = 3.2, value = 1.3, step = 0.2),
+  sliderInput("A01", label = "Initial number of Adults:",
+              min = 0, max = 150, value = 50, step = 10),
   
-  sliderInput("K", label = "Carrying capacity:",
-              min = 50, max = 500, value = 500, step = 50)
+  sliderInput("f", label = "Birth rate, f:",
+              min = 0, max = 3, value = 1.0, step = 0.2),
+  
+  sliderInput("g", label = "Growth rate, g:",
+              min = 0, max = 1, value = .5, step = .1)
 )
 
 renderPlot({
   nSteps<-50
   time<-seq(from=1, to=nSteps, by=1)
   
-  Nvec<-c(input$N01, rep(NA, times=nSteps-1))
+  J<-c(input$J01, rep(NA, times=nSteps-1))
+  A<-c(input$A01, rep(NA, times=nSteps-1))
   
   for (i in 2:nSteps){
-    Nvec[i]<-Nvec[i-1]+(input$lambda)*Nvec[i-1]*(input$K-Nvec[i-1])/input$K
-    }
+    J[i]<-A[i-1]*input$f
+    A[i]<-J[i-1]*input$g}
   
-  plot(Nvec~time, ylab="Number of individuals (N)", xlab="time (t)", 
-       ylim=c(0,600), type="o")
-  abline(h=input$K, col="purple", lty=2)  
-})
-```
-
-Notice that when the population growth rate $r$ gets large, the dynamics of the system become increasingly irregular. 
-
-It turns out that discrete time versions of models that try to capture the effects of carrying capacities have funny properties that make them sensitive to initial population size and growth rate. This os often referred to as *deterministic chaos*.
-
-Below, Compare two species when they have the same carrying capacity ($K=500$) and only slightly different initial conditions or growth rates.
-
-```{r, echo=FALSE}
-inputPanel(
-  sliderInput("N02.1", label = "Initial Population size:",
-              min = 50, max =500, value= 150 , step = 5),
-  
-  sliderInput("lambda.1", label = "Population Growth Rate:",
-              min = -.2, max = 3.2, value = 1.1, step = 0.1),
-  
-  sliderInput("N02.2", label = "Initial Population size:",
-              min = 50, max = 500, value = 150, step = 5),
-  
-  sliderInput("lambda.2", label = "Population Growth Rate:",
-              min = -.2, max = 3.2, value = 1.3, step = 0.1)
-
-)
-
-renderPlot({
-  
-  nSteps<-50;
-  K<-500;
-  time<-seq(from=1, to=nSteps, by=1);
-  
-  N1vec<-c(input$N02.1, rep(NA, times=nSteps-1));
-  
-  for (i in 2:nSteps){
-    N1vec[i]<-N1vec[i-1]+(input$lambda.1)*N1vec[i-1]*(K-N1vec[i-1])/K
-    };
-
-  N2vec<-c(input$N02.2, rep(NA, times=nSteps-1))
-  
-  for (i in 2:nSteps){
-    N2vec[i]<-N2vec[i-1]+(input$lambda.2)*N2vec[i-1]*(K-N2vec[i-1])/K
-    }
-  
-  plot(N1vec~time, ylab="Number of individuals (N)", xlab="time (t)",
-       ylim=c(0,600), type="o")
-  
-  abline(h=K, col="purple", lty=2)
-  
-  lines(N2vec~time, col="orange")
+  par(mfrow=c(2,1))
+  plot(J~time, xlab="time (t)", ylab="Number of individuals", type="l", lwd=2)
+  lines(A~time, col="orange", type="l", lwd=2)
     
-})
-
-```
-
-When the population growth rate is high enough, the population "overshoots" the carrying capacity, and then is corrected. These cycles can be stable or unstable, and we can follow the population trajectory towards equilibrium using a cobwebb diagram, as shown below.
-
-```{r, echo=FALSE}
-inputPanel(
-  sliderInput("N02", label = "Initial Population size:",
-              min = 50, max = 500, value = 50, step = 50),
   
-  sliderInput("lambda2", label = "Population Growth Rate:",
-              min = -.2, max = 3.2, value = 2.7, step = 0.1),
-  
-  sliderInput("K2", label = "Carrying capacity:",
-              min = 50, max = 500, value = 350, step = 50)
-)
-
-renderPlot({
-  nSteps<-50
-  time<-seq(from=1, to=nSteps, by=1)
-  Nvec<-c(input$N02, rep(NA, times=nSteps-1))
+  popvec<-matrix(c(input$J01,input$A01), nrow=2, ncol=1) #initial population vector
+  tmat<-matrix(c(0,input$f,input$g,0), nrow=2, ncol=2, byrow=T) #
   
   for (i in 2:nSteps){
-    Nvec[i]<-Nvec[i-1]+(input$lambda2)*Nvec[i-1]*
-      (input$K2-Nvec[i-1])/input$K2
+    vec<-matrix(popvec[,i-1], ncol=1, nrow=2, byrow=T)
+    popvec<-cbind(popvec,tmat%*%vec)
     }
   
-  baseVec<-seq(1:600)
-  curveVec<-NA
-  for (i in 1:length(baseVec)){
-    curveVec[i]<-baseVec[i]+(input$lambda2)*baseVec[i]*
-      (input$K2-baseVec[i])/input$K2
-    }
-  
-  jet.colors <- colorRampPalette(c("#00007F", "blue", 
-      "#007FFF", "cyan", "#7FFF7F", "yellow", "#FF7F00", "red", "#7F0000"))
-  
-  go<-length(Nvec)-2
-  par(mfrow=c(1,2))
-  
-  plot(NA, ylab="Number of individuals (N)", xlab="time (t)",
-       ylim=c(0,600), xlim=c(0,nSteps))
-  
-    for (j in 1:go) {
-    segments(time[j],Nvec[j],time[j+1],Nvec[j+1], 
-             col=jet.colors(nSteps)[j])
-    }
-  
-  plot(curveVec~baseVec, ylim=c(0,600), xlim=c(0,600), ylab="N1", xlab="N2", type="l", lwd=2)
-  
-  for (j in 1:go) {
-    arrows(Nvec[j],Nvec[j+1],Nvec[j+1],Nvec[j+1], 
-             col=jet.colors(nSteps)[j], length=.25, lwd=1.3)
-        arrows(Nvec[j+1],Nvec[j+1],Nvec[j+1],Nvec[j+2], 
-             col=jet.colors(nSteps)[j], length=.25, lwd=1.3)
-    }
-  
-  abline(h=input$K2, col="purple", lty=2)
-  abline(v=input$K2, col="purple", lty=2)
-  
-})
+  plot(popvec[1,]~time, type="l", lwd=2, lty=2, xlab="time (t)", ylab="Number of individuals")
+  lines(popvec[2,]~time, col="orange", type="l", lwd=2, lty=2)  
+
+  })
 
 ```
 
-You can program these dynamics for yourself in R using the code below:
+You can program these dynamics yourself:
 
 ```{r, echo=TRUE, fig.show='hide'}
-  
-  N0<-50   #The intitial population size
-  nSteps<-50    #The number of time steps
-  r<-1     # The population growth rate, r
-  K<-500        #The carrying capacity
 
-  Nvec<-c(N0, rep(NA, times=nSteps-1))  #Create an open vector for data
+# Model with two seperate equations
+  J01<- 5 #initial number of juveniles
+  A01<- 15  #initial number of adults
+  g<- .5 # growth rate from juveniles to adults
+  f<- 1.1 #per capita fecuntiy from adults to juveniles
+  nSteps<-50  #number of timesteps
+
+  time<-seq(from=1, to=nSteps, by=1)
   
-  #Run a loop that considers each time step (t) as a function of the time step before it (t-1) and r
-  for (t in 2:nSteps){
-    Nvec[t]<-Nvec[t-1]+r*Nvec[t-1]*(K-Nvec[t-1])/K
+  J<-c(J01, rep(NA, times=nSteps-1))
+  A<-c(A01, rep(NA, times=nSteps-1))
+  
+  for (i in 2:nSteps){
+    J[i]<-A[i-1]*f
+    A[i]<-J[i-1]*g}
+  
+  plot(J~time, xlab="time (t)", ylab="Number of individuals", type="l", lwd=2)
+  lines(A~time, col="orange", type="l", lwd=2)
+
+#model with a transition matrix
+  popvec<-matrix(c(J01,A01), nrow=2, ncol=1) #initial population vector
+  tmat<-matrix(c(0,f,g,0), nrow=2, ncol=2, byrow=T) #transition matrix
+  
+  for (i in 2:nSteps){
+    vec<-matrix(popvec[,i-1], ncol=1, nrow=2, byrow=T)
+    popvec<-cbind(popvec,tmat%*%vec)
     }
   
-  time<-seq(from=1, to=nSteps, by=1)  #Create a vector of time steps for plotting
-  
-  plot(Nvec~time, ylab="Number of individuals (N)", xlab="time (t)", 
-       ylim=c(0,100), type="o")  #plot the results
+  plot(popvec[1,]~time, xlab="time (t)", ylab="Number of individuals", type="l", lwd=2)
+  lines(popvec[2,]~time, col="orange", type="l", lwd=2)
 
 ```
 
