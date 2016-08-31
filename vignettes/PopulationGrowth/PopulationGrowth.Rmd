@@ -58,7 +58,7 @@ renderPlot({
     }
   
   plot(Nvec~time, ylab="Number of individuals (N)", xlab="Time (t)",
-       ylim=c(0,100), type="o")
+       ylim=c(input$N0,max(Nvec)), type="o")
     
 })
 ```
@@ -89,7 +89,7 @@ renderPlot({
     Nvec[i]<-Nvec[i-1]*(input$lambda)
     }
   
-  plot(Nvec~time, ylab="Number of individuals (N)", ylim=c(0,100), type="o")
+  plot(Nvec~time, ylab="Number of individuals (N)", ylim=c(input$N02,max(Nvec)), type="o")
     
 })
 ```
@@ -111,7 +111,7 @@ You can program these plots yourself in R using the code below:
   
   time<-seq(from=1, to=nSteps, by=1)  #Create a vector of time steps for plotting
   
-  plot(Nvec~time, ylab="Number of individuals (N)", ylim=c(0,100), type="o")  #plot the results
+  plot(Nvec~time, ylab="Number of individuals (N)", ylim=c(N0,max(Nvec)), type="o")  #plot the results
 
 ```
 
