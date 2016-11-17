@@ -10,6 +10,8 @@ library(shiny)
 library(shinyapps)
 library(png)
 library(rmarkdown)
+library(ggplot2)
+library(ggthemes)
 #devtools::install_github("EcoEvoEducation/EcoEvoApps")
 
 ```
@@ -36,6 +38,17 @@ $$N_t+1=N_t [S+b]$$
 To program these dynamics, we start by considering a population with an initial population size of 100, a survivorship rate of $S=0.8$, and a birthrate of $b=0.2$:
 
 ```{r, echo=FALSE}
+my_theme <- theme_bw()+
+  theme(panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_line(linetype="dotted", color=NA),
+        panel.background = element_rect(fill = "#EFEFEF"),
+        axis.text=element_text(size=16, color="grey35", family = "Arial Narrow"),
+        axis.title=element_text(size=18, family = "Arial Narrow", face = "bold"),
+        panel.border = element_blank(),
+        axis.line.x = element_line(color="black"),
+        axis.line.y = element_line(color="black"))
 inputPanel(
   sliderInput("N0", label = "Initial Population size:",
               min = 10, max = 100, value = 50, step = 10),
@@ -57,8 +70,13 @@ renderPlot({
     Nvec[i]<-Nvec[i-1]*(input$S+input$b)
     }
   
-  plot(Nvec~time, ylab="Number of individuals (N)", xlab="Time (t)",
-       ylim=c(input$N0,max(Nvec)), type="o")
+#   plot(Nvec~time, ylab="Number of individuals (N)", xlab="Time (t)",
+#        ylim=c(input$N0,max(Nvec)), type="o")
+  plot_df <- data.frame(N=Nvec,Time=time)
+  ggplot(plot_df, aes(x=Time, y=N))+
+    geom_line(color="#BB5635")+
+    geom_point(color="#BB5635", size=3)+
+    my_theme
     
 })
 ```
@@ -89,7 +107,11 @@ renderPlot({
     Nvec[i]<-Nvec[i-1]*(input$lambda)
     }
   
-  plot(Nvec~time, ylab="Number of individuals (N)", ylim=c(input$N02,max(Nvec)), type="o")
+  plot_df <- data.frame(N=Nvec,Time=time)
+  ggplot(plot_df, aes(x=Time, y=N))+
+    geom_line(color="#BB5635")+
+    geom_point(color="#BB5635", size=3)+
+    my_theme
     
 })
 ```
@@ -98,20 +120,25 @@ You can program these plots yourself in R using the code below:
 
 ```{r, echo=TRUE, fig.show='hide'}
   
-  N0<-50   #The intitial population size
-  nSteps<-50    #The number of time steps
-  lambda<-1     # The population growth rate, lambda
-
-  Nvec<-c(N0, rep(NA, times=nSteps-1))  #Create an open vector for data
+  N0     <- 50    # The intitial population size
+  nSteps <- 50    # The number of time steps
+  lambda <- 1     # The population growth rate, lambda
+  Nvec   <- c(N0, rep(NA, times=nSteps-1))  # Create an open vector for data
   
   #Run a loop that considers each time step (t) as a function of the time step before it (t-1) and lambda
   for (t in 2:nSteps){
-    Nvec[t]<-Nvec[t-1]*(lambda)
-    }
+    Nvec[t] <- Nvec[t-1]*(lambda)
+  }
   
-  time<-seq(from=1, to=nSteps, by=1)  #Create a vector of time steps for plotting
+  time    <- seq(from=1, to=nSteps, by=1)  #Create a vector of time steps for plotting
+  plot_df <- data.frame(N=Nvec,Time=time)
   
-  plot(Nvec~time, ylab="Number of individuals (N)", ylim=c(N0,max(Nvec)), type="o")  #plot the results
+  require(ggplot2)
+  require(ggthemes)
+  ggplot(plot_df, aes(x=Time, y=N))+
+    geom_line(color="#BB5635")+
+    geom_point(color="#BB5635", size=3)+
+    my_theme
 
 ```
 
