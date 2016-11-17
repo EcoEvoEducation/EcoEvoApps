@@ -76,6 +76,7 @@ renderPlot({
   ggplot(plot_df, aes(x=Time, y=N))+
     geom_line(color="#BB5635")+
     geom_point(color="#BB5635", size=3)+
+    ylab("Population size (N)")+
     my_theme
     
 })
@@ -111,6 +112,7 @@ renderPlot({
   ggplot(plot_df, aes(x=Time, y=N))+
     geom_line(color="#BB5635")+
     geom_point(color="#BB5635", size=3)+
+    ylab("Population size (N)")+
     my_theme
     
 })
@@ -138,6 +140,7 @@ You can program these plots yourself in R using the code below:
   ggplot(plot_df, aes(x=Time, y=N))+
     geom_line(color="#BB5635")+
     geom_point(color="#BB5635", size=3)+
+    ylab("Population size (N)")+
     my_theme
 
 ```
