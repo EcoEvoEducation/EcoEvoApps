@@ -34,8 +34,10 @@ shinyServer(function(input, output, session) {
     myCols <- c("#277BA8", "#7ABBBD", "#AED77A")
     theplot <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
       geom_line(size=1.5) +
+      geom_point(aes(shape=variable)) +
       xlab("Time Since Initial Infection (years)") +
       ylab("Percent of Population (%)") +
+      scale_shape_manual(values = c(16,18,15))+
       theme_bw() +
       theme(legend.position = c(0.75,0.85))+
       scale_color_manual(values=myCols, name="")
