@@ -6,7 +6,7 @@ runtime: shiny
 ---
 ```{r, echo=FALSE, message=FALSE}
 library(shiny)
-library(shinyapps)
+# library(shinyapps)
 #devtools::install_github("EcoEvoEducation/EcoEvoApps")
 ```
 ### Introduction
@@ -54,7 +54,7 @@ where *S* is the number of species in the community.
 To keep everything clear, here is a table of model states and parameters.
 
 | Parameter | Definition |
-|---|---|
+|---|---------------------|
 | $N_{i}$ | The abundance (or biomass, depending on units) of species *i* | 
 | $r_{i}$ | Species *i*'s intrinsic rate of growth |
 | $K_{i}$ | Species *i*'s carrying capacity |
@@ -66,6 +66,7 @@ To keep everything clear, here is a table of model states and parameters.
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(deSolve)
 library(ggplot2)
+library(ggthemes)
 library(reshape2)
 library(gridExtra)
 library(EcoEvoApps)

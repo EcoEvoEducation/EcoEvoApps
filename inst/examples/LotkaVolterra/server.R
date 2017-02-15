@@ -3,6 +3,23 @@
 #
 # http://shiny.rstudio.com
 
+my_theme <- theme_bw()+
+  theme(panel.grid.major.x = element_blank(), 
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_line(color="white"),
+        panel.background   = element_rect(fill = "#EFEFEF"),
+        axis.text          = element_text(size=10, color="grey35", family = "Arial Narrow"),
+        axis.title         = element_text(size=12, family = "Arial Narrow", face = "bold"),
+        panel.border       = element_blank(),
+        axis.line.x        = element_line(color="black"),
+        axis.line.y        = element_line(color="black"),
+        strip.background   = element_blank(),
+        strip.text         = element_text(size=10, color="grey35", family = "Arial Narrow"),
+        legend.title       = element_text(size=10, family = "Arial Narrow"),
+        legend.text        = element_text(size=8, color="grey35", family = "Arial Narrow"))
+
+
 ## Continuous model
 updateLV <- function(t, N, parms){
   with(as.list(c(N, parms)), {
@@ -31,21 +48,14 @@ shinyServer(function(input, output, session) {
     myCols <- c("#277BA8", "#7ABBBD")
     ymax <- max(df.m$value)+20
     theplot <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
-      geom_line(size=1.5) +
+      geom_line(size=2) +
       xlab("Time") +
       ylab("Population size (abundance)") +
-      theme_bw() +
-      theme(legend.position = c(0.75,0.85))+
-      scale_color_manual(values=myCols, name="")+
-      scale_y_continuous(limits=c(0,ymax))
-    
-    statespace <- ggplot(data=mod.df, aes(x=log(N1), y=log(N2), color=Time))+
-      geom_point(size=3, alpha=0.5)+
-      theme_bw()+
-      scale_colour_gradientn(colours = rainbow(7))
-    
-    comb <- grid.arrange(theplot, statespace, ncol=1, nrow=2)
-    print(comb)
+      scale_color_viridis(discrete=TRUE, end=0.6) +
+      scale_y_continuous(limits=c(0,ymax)) +
+      my_theme 
+
+    print(theplot)
   })
 })
 
