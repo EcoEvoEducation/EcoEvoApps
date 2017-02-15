@@ -66,6 +66,7 @@ To keep everything clear, here is a table of model states and parameters.
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(deSolve)
 library(ggplot2)
+library(viridis)
 library(ggthemes)
 library(reshape2)
 library(gridExtra)

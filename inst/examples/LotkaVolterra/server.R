@@ -2,9 +2,9 @@
 # You can find out more about building applications with Shiny here:
 #
 # http://shiny.rstudio.com
-
+# library(ggthemes)
 my_theme <- theme_bw()+
-  theme(panel.grid.major.x = element_blank(), 
+  theme(panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
         panel.grid.major.y = element_line(color="white"),
@@ -32,12 +32,13 @@ updateLV <- function(t, N, parms){
 shinyServer(function(input, output, session) {
   output$LV <- renderPlot({
     parms <- list(
-      r = c(input$r1, input$r2),
-      K = c(input$K1, input$K2),
+      r = c(1.1, 1.1),
+      K = c(100, 150),
       a = c(input$a21, input$a12)
+      # a =c(0,0)
     )
-    N <- c(N1=input$N10,N2=input$N20)
-    simtime <- input$timesim
+    N <- c(N1=10,N2=10)
+    simtime <- 50
     odetime <- seq(1,simtime,by=0.1)
     model <- as.data.frame(ode(y = N, times = odetime,
                                func = updateLV, parms = parms))
@@ -53,7 +54,7 @@ shinyServer(function(input, output, session) {
       ylab("Population size (abundance)") +
       scale_color_viridis(discrete=TRUE, end=0.6) +
       scale_y_continuous(limits=c(0,ymax)) +
-      my_theme 
+      my_theme
 
     print(theplot)
   })
