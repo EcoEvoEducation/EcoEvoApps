@@ -54,7 +54,7 @@ where *S* is the number of species in the community.
 To keep everything clear, here is a table of model states and parameters.
 
 | Parameter | Definition |
-|---|---------------------|
+|---|------------------------------|
 | $N_{i}$ | The abundance (or biomass, depending on units) of species *i* | 
 | $r_{i}$ | Species *i*'s intrinsic rate of growth |
 | $K_{i}$ | Species *i*'s carrying capacity |
