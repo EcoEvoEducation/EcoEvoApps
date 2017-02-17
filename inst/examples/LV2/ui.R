@@ -10,16 +10,12 @@ library(markdown)
 shinyUI(navbarPage("Lotka-Volterra",tabPanel("Species Competition Model",
                  sidebarLayout(
                    sidebarPanel(
-                     sliderInput("a21",
+                     radioButton("a21",
                                  label="Effect of species 2 on species 1",
-                                 min = 0,
-                                 max = 2,
-                                 value = 1, step=0.1),
-                     sliderInput("a12",
+                                 c(0.1,0.2)),
+                     radioButton("a12",
                                  label="Effect of species 1 on species 2",
-                                 min = 0,
-                                 max = 2,
-                                 value = 1, step=0.1)),
+                                 c(0.1,0.2))),
                    mainPanel(
                      plotOutput("LV"))
                    ))))
