@@ -89,7 +89,25 @@ shinyAppDir(
 )
 ```
 
+## Another one...
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+shinyAppDir(
+  system.file("examples/LV2", package="EcoEvoApps"),
+  options=list(
+    width="100%", height=550
+  )
+)
+```
 
+## Another one...
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+shinyAppDir(
+  system.file("examples/LV2", package="EcoEvoApps"),
+  options=list(
+    width="100%", height=550
+  )
+)
+```
 
 ### Implement the model in R
 To implement the Lotka-Volterra model in R we can make a function called ``updateLV`` that takes parameters we define and the number of individuals for each species at each time step *t* ($N_{1,t}$, $N_{2,t}) to calculate the rate of change, and thus the number of individuals for each species at the next time step. We are going to model populations dynamics in continuous rather than discrete time. To do this we use the ordinary difference equation solver ``deSolve`` in R.
