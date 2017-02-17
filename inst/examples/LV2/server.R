@@ -34,7 +34,7 @@ shinyServer(function(input, output, session) {
     parms <- list(
       r = c(1.1, 1.1),
       K = c(100, 150),
-      a = c(input$a21, input$a12)
+      a = as.numeric(c(input$a21, input$a12))
       # a =c(0,0)
     )
     N <- c(N1=10,N2=10)
