@@ -7,7 +7,7 @@ runtime: shiny
 ```{r, echo=FALSE, message=FALSE}
 library(shiny)
 # library(shinyapps)
-#devtools::install_github("EcoEvoEducation/EcoEvoApps")
+# devtools::install_github("EcoEvoEducation/EcoEvoApps")
 ```
 ### Introduction
 In the logistic model of population growth we saw that resource limitation can be included in an abstract way by including a carrying capacity for a population. But, what if there are also other species competiting for the same resources? Depending on the strength of competition, competiting species can reduce equilibrium population abundance below the carrying capacity. To jog your memory, here is the continuous time version of logistic growth:
