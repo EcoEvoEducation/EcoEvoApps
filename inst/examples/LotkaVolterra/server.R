@@ -21,30 +21,29 @@ my_theme <- theme_bw()+
 
 
 ## Continuous model
-updateLV <- function(t, N, parms){
-  with(as.list(c(N, parms)), {
-    dN1dt <- r[1]*N1*((K[1]-N1-a[1]*N2)/K[1])
-    dN2dt <- r[2]*N2*((K[2]-N2-a[2]*N1)/K[2])
-    list(c(dN1dt, dN2dt)) #output
-  })
+run_lv_chesson <- function(initial_pop_size = 1,
+                           growth_rates = rep(0.03,2),
+                           competition_matrix,
+                           generations = 500){
+  N     <- matrix(nrow = generations, ncol = 2)
+  N[1,] <- initial_pop_size
+  r     <- growth_rates
+  A     <- competition_matrix
+  
+  for(t in 2:generations){
+    N[t,1] <- N[t-1,1] + (r[1]*N[t-1,1])*(1 - A[1,1]*N[t-1,1] - A[1,2]*N[t-1,2])
+    N[t,2] <- N[t-1,2] + (r[2]*N[t-1,2])*(1 - A[2,1]*N[t-1,1] - A[2,2]*N[t-1,2])
+  }
+  return(N)
 }
 
 shinyServer(function(input, output, session) {
   output$LV <- renderPlot({
-    parms <- list(
-      r = c(1.1, 1.1),
-      K = c(100, 150),
-      a = c(input$a21, input$a12)
-      # a =c(0,0)
-    )
-    N <- c(N1=10,N2=10)
-    simtime <- 50
-    odetime <- seq(1,simtime,by=0.1)
-    model <- as.data.frame(ode(y = N, times = odetime,
-                               func = updateLV, parms = parms))
-    
+    A <- matrix(c(input$a11, input$a12, input$a21, input$a22))
+    model <- run_lv_chesson(competition_matrix=A)
     mod.df <- as.data.frame(model)
-    colnames(mod.df) <- c("Time", "N1", "N2")
+    mod.df$Time <- 1:nrow(mod.df)
+    colnames(mod.df) <- c("N1", "N2", "Time")
     df.m <- melt (mod.df, id.vars="Time")
     myCols <- c("#277BA8", "#7ABBBD")
     ymax <- max(df.m$value)+20
