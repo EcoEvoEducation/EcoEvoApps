@@ -22,7 +22,7 @@ my_theme <- theme_bw()+
 
 ## Continuous model
 run_lv_chesson <- function(initial_pop_size = 1,
-                           growth_rates = rep(0.03,2),
+                           growth_rates = rep(0.02,2),
                            competition_matrix,
                            generations = 500){
   N     <- matrix(nrow = generations, ncol = 2)
