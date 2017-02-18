@@ -9,15 +9,15 @@ my_theme <- theme_bw()+
         panel.grid.minor.y = element_blank(),
         panel.grid.major.y = element_line(color="white"),
         panel.background   = element_rect(fill = "#EFEFEF"),
-        axis.text          = element_text(size=10, color="grey35", family = "Arial Narrow"),
-        axis.title         = element_text(size=12, family = "Arial Narrow", face = "bold"),
+        axis.text          = element_text(size=14, color="grey35", family = "Arial Narrow"),
+        axis.title         = element_text(size=16, family = "Arial Narrow", face = "bold"),
         panel.border       = element_blank(),
         axis.line.x        = element_line(color="black"),
         axis.line.y        = element_line(color="black"),
         strip.background   = element_blank(),
-        strip.text         = element_text(size=10, color="grey35", family = "Arial Narrow"),
-        legend.title       = element_text(size=10, family = "Arial Narrow"),
-        legend.text        = element_text(size=8, color="grey35", family = "Arial Narrow"))
+        strip.text         = element_text(size=14, color="grey35", family = "Arial Narrow"),
+        legend.title       = element_text(size=14, family = "Arial Narrow"),
+        legend.text        = element_text(size=14, color="grey35", family = "Arial Narrow"))
 
 
 ## Continuous model
