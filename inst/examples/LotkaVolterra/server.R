@@ -46,7 +46,7 @@ shinyServer(function(input, output, session) {
     colnames(mod.df) <- c("N1", "N2", "Time")
     df.m <- melt (mod.df, id.vars="Time")
     myCols <- c("#277BA8", "#7ABBBD")
-    ymax <- max(df.m$value)+20
+    ymax <- max(df.m$value)+2
     theplot <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
       geom_line(size=2) +
       xlab("Time") +
