@@ -10,13 +10,78 @@ library(shiny)
 # devtools::install_github("EcoEvoEducation/EcoEvoApps")
 ```
 ### Introduction
-In the logistic model of population growth we saw that resource limitation can be included in an abstract way by including a carrying capacity for a population. But, what if there are also other species competiting for the same resources? Depending on the strength of competition, competiting species can reduce equilibrium population abundance below the carrying capacity. To jog your memory, here is the continuous time version of logistic growth:
+In the logistic model of population growth we saw that resource limitation can be included in an abstract way by including a carrying capacity for a population. But, what if there are also other species competiting for the same resources? Depending on the strength of competition, competing species can reduce equilibrium population abundance below the carrying capacity. To jog your memory, here is the discrete-time version of logistic growth:
 
 $$
-\frac{dN_1}{dt} = r_1N_1\left(\frac{K_1-N_1}{K_1}\right)
+N_{t+1} = rN_{t}\left(1-\frac{N_{t}}{K}\right)
 $$
 
-where *r* is the intrinsic rate of growth, *N* is the population abundance, and *K* is the carrying capacity. The effect of $\left(\frac{K-N}{K}\right)$ is intraspecific competition (density-dependence). To include the effect of another species, we assume that growth is further limited by a simple function of the number of the other species, $\alpha_{2,1}N_2$.
+where *r* is the intrinsic per capita growth rate, *N* is the population abundance, and *K* is the carrying capacity. The effect of $\left(\frac{N}{K}\right)$ is intraspecific competition (density-dependence) -- the closer *N* comes to *K*, the slower the population grows. However, *carrying capacity" is a notoriously difficult term to define and quantify. Peter Chesson (2000) describes a more intuitive way to think about population growth by assuming that "per capita growth rates are linear decreasing functions of the density" of the population (Figure 1, left panel). When this is the case, population growth rate starts low when a species is at low abundance (low $N$, high $r$), increases to a maximum when a species reaches a moderate abundance (medium $N$, medium $r$), and then decreases as the population reaches a high density (high $N$, low $r$) (Figure 1, right panel).
+
+<br>
+<br>
+<br>
+
+```{r fig1, echo=FALSE, eval=TRUE, warning=FALSE, message=FALSE, fig.width=12, fig.height=4}
+library(ggplot2)
+library(ggthemes)
+library(gridExtra)
+library(viridis)
+my_theme <- theme_bw()+
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_line(color="white"),
+        panel.background   = element_rect(fill = "#EFEFEF"),
+        axis.text          = element_text(size=14, color="grey35", family = "Arial Narrow"),
+        axis.title         = element_text(size=16, family = "Arial Narrow", face = "bold"),
+        panel.border       = element_blank(),
+        axis.line.x        = element_line(color="black"),
+        axis.line.y        = element_line(color="black"),
+        strip.background   = element_blank(),
+        strip.text         = element_text(size=14, color="grey35", family = "Arial Narrow"),
+        legend.title       = element_text(size=14, family = "Arial Narrow"),
+        legend.text        = element_text(size=14, color="grey35", family = "Arial Narrow"),
+        plot.title         = element_text(size=18, family = "Arial Narrow", face="bold"))
+
+N <- 1:100
+a <- 0.01
+r <- (1-a*N)
+df <- data.frame(N=N, r=r, rpop=N*r)
+col <- viridis(2,begin = 0.6, end = 0.6) 
+g1 <- ggplot(df, aes(x=N, y=r)) +
+  geom_line(size=2, color=col[1]) +
+  xlab("Population Density (N)")+
+  ylab("Per Capita Growth Rate") +
+  ggtitle("Fig. 1: Per capita growth rate decreases\nas linear function of population density") +
+  my_theme
+
+g2 <- ggplot(df, aes(x=N, y=rpop)) +
+  geom_line(size=2, color=col[1]) +
+  xlab("Population Density (N)")+
+  ylab("Population Growth Rate") +
+  ggtitle("Fig. 1: Population growth rate increases and\nthen decreases as a function of population density") +
+  my_theme
+
+grid.arrange(g1,g2,ncol=2)
+```
+<br>
+<br>
+<br>
+
+So, we can rewrite the logistic growth equation as:
+
+$$
+N_{t+1} = N_{t} + rN_{t} \left(1-\alpha N \right)
+$$
+where $\alpha$ is the *absolute* effect of intraspecific competition, and is equal to $1/K$. If $\alpha$ is really small, then intraspecific competition (density-dependence) is negligable. If $\alpha$ is very large, then intraspecific competition strongly limits population growth and size. The reason we go to all this trouble to rewrite the logistic growth equation is to make it easier to include the effects of other species on population growth. But first, let's make the equation a little more simple by writing it in terms of population growth $\left(\frac{dN}{dt} \right)$, rather than population size, and by adding subscripts to denote we are talking about species *i*:
+
+$$
+\frac{dN_i}{dt} = rN_{i} \left(1-\alpha_{ii} N_i \right)
+$$
+Notice how we got to drop the *t* subscripts becuase we are now defining populationg growth at any instantaneous point in time. Also notice that we added two *i* subscripts to $\alpha$, and $\alpha_{ii}$ reads as the effect of species *i* on species *i*. By this point, is is probably becoming pretty obvious how we include the effect of another species.
+
+To include the effect of another species, we assume that growth is further limited by a simple function of the number of the other species, $\alpha_{2,1}N_2$.
 
 $$
 \frac{dN_1}{dt} = r_1N_1\left(\frac{K_1-N_1-\alpha_{2,1}N_2}{K_1}\right)
