@@ -225,14 +225,15 @@ run_lv_chesson <- function(initial_pop_size = 1,
 }
 
 
-A <- matrix(c(0.2, 0.2, 0.3, 0.5), ncol=2, nrow=2)
-model <- run_lv_chesson(competition_matrix=A) * 10
-mod.df <- as.data.frame(model)
-mod.df$Time <- 1:nrow(mod.df)
+A                <- matrix(c(0.2, 0.2, 0.3, 0.5), ncol=2, nrow=2)
+model            <- run_lv_chesson(competition_matrix=A) * 10
+mod.df           <- as.data.frame(model)
+mod.df$Time      <- 1:nrow(mod.df)
 colnames(mod.df) <- c("N1", "N2", "Time")
-df.m <- melt (mod.df, id.vars="Time")
-myCols <- c("#277BA8", "#7ABBBD")
-ymax <- max(df.m$value)+2
+df.m             <- melt (mod.df, id.vars="Time")
+myCols           <- c("#277BA8", "#7ABBBD")
+ymax             <- max(df.m$value)+2
+
 ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
   geom_line(size=2) +
   xlab("Time") +
