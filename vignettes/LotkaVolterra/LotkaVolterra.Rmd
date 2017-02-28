@@ -6,14 +6,16 @@ runtime: shiny
 ---
 ```{r, echo=FALSE, message=FALSE}
 library(shiny)
-# library(shinyapps)
+# library(rsconnect)
+
+### RE-INSTALL EACH TIME YOU PUSH TO GET LATEST VERSION...
 # devtools::install_github("EcoEvoEducation/EcoEvoApps")
 ```
-### Introduction
+## Introduction
 In the logistic model of population growth we saw that resource limitation can be included in an abstract way by including a carrying capacity for a population. But, what if there are also other species competiting for the same resources? Depending on the strength of competition, competing species can reduce equilibrium population abundance below the carrying capacity. To jog your memory, here is the discrete-time version of logistic growth:
 
 $$
-N_{t+1} = rN_{t}\left(1-\frac{N_{t}}{K}\right)
+N_{t+1} = N_{t} + rN_{t}\left(1-\frac{N_{t}}{K}\right)
 $$
 
 where *r* is the intrinsic per capita growth rate, *N* is the population abundance, and *K* is the carrying capacity. The effect of $\left(\frac{N}{K}\right)$ is intraspecific competition (density-dependence) -- the closer *N* comes to *K*, the slower the population grows. However, *carrying capacity" is a notoriously difficult term to define and quantify. Peter Chesson (2000) describes a more intuitive way to think about population growth by assuming that "per capita growth rates are linear decreasing functions of the density" of the population (Figure 1A). When this is the case, population growth rate starts low when a species is at low abundance (low $N$, high $r$), increases to a maximum when a species reaches a moderate abundance (medium $N$, medium $r$), and then decreases as the population reaches a high density (high $N$, low $r$) (Figure 1B).
@@ -110,16 +112,25 @@ $$
 
 where *S* is the number of species in the community.
 
-#### Table of parameters and states
+<br>
+<br>
+<br>
+
+### Table of parameters and states
 To keep everything clear, here is a table of model states and parameters.
 
 | Parameter | Definition |
-|---|------------------------------|
+|---|----------------------------------------|
 | $N_{i}$ | The abundance (or biomass, depending on units) of species *i* | 
-| $r_{i}$ | Species *i*'s intrinsic rate of growth |
-| $K_{i}$ | Species *i*'s carrying capacity |
-| $\alpha_{ji}$ | Interspecific competition coefficient (effect of species *j* on species *i*) |
+| $r_{i}$ | Species *i*'s intrinsic per capita growth rate |
+| $\alpha_{ii}$ | **Intra**specific competition coefficient (effect of species *i* on itself) |
+| $\alpha_{ij}$ | **Inter**specific competition coefficient (effect of species *j* on species *i*) |
 
+<br>
+<br>
+<br>
+
+--------------------------
 
 ### Play with the model parameters
 
@@ -139,7 +150,15 @@ shinyAppDir(
 )
 ```
 
-## Another one...
+<br>
+<br>
+<br>
+
+--------------------------
+
+# Exercises
+
+### 1. Choose competition coefficients that result in species 1 going extinct.
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 shinyAppDir(
   system.file("examples/LV2", package="EcoEvoApps"),
@@ -149,7 +168,7 @@ shinyAppDir(
 )
 ```
 
-## Another one...
+### 2. Choose competition coefficients that result in species 2 going extinct.
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 shinyAppDir(
   system.file("examples/LV2", package="EcoEvoApps"),
@@ -159,7 +178,7 @@ shinyAppDir(
 )
 ```
 
-## Another one...
+### 3. Choose competition coefficients that result in species coexistence.
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 shinyAppDir(
   system.file("examples/LV2", package="EcoEvoApps"),
@@ -169,6 +188,59 @@ shinyAppDir(
 )
 ```
 
+### 4. In the figure below, $\alpha_{11} = 0.2$, $\alpha_{12} = 0.2$, $\alpha_{22} = 0.5$, and $\alpha_{21} = 0.3$. Do those parameter values meet the criteria for coexistence? If not, explain why the figure shows the two species coexisting.
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+my_theme <- theme_bw()+
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_line(color="white"),
+        panel.background   = element_rect(fill = "#EFEFEF"),
+        axis.text          = element_text(size=14, color="grey35", family = "Arial Narrow"),
+        axis.title         = element_text(size=16, family = "Arial Narrow", face = "bold"),
+        panel.border       = element_blank(),
+        axis.line.x        = element_line(color="black"),
+        axis.line.y        = element_line(color="black"),
+        strip.background   = element_blank(),
+        strip.text         = element_text(size=14, color="grey35", family = "Arial Narrow"),
+        legend.title       = element_text(size=14, family = "Arial Narrow"),
+        legend.text        = element_text(size=14, color="grey35", family = "Arial Narrow"))
+
+
+## Continuous model
+run_lv_chesson <- function(initial_pop_size = 1,
+                           growth_rates = rep(0.02,2),
+                           competition_matrix,
+                           generations = 500){
+  N     <- matrix(nrow = generations, ncol = 2)
+  N[1,] <- initial_pop_size
+  r     <- growth_rates
+  A     <- competition_matrix
+  
+  for(t in 2:generations){
+    N[t,1] <- N[t-1,1] + (r[1]*N[t-1,1])*(1 - A[1,1]*N[t-1,1] - A[1,2]*N[t-1,2])
+    N[t,2] <- N[t-1,2] + (r[2]*N[t-1,2])*(1 - A[2,1]*N[t-1,1] - A[2,2]*N[t-1,2])
+  }
+  return(N)
+}
+
+
+A <- matrix(c(0.2, 0.2, 0.3, 0.5), ncol=2, nrow=2)
+model <- run_lv_chesson(competition_matrix=A) * 10
+mod.df <- as.data.frame(model)
+mod.df$Time <- 1:nrow(mod.df)
+colnames(mod.df) <- c("N1", "N2", "Time")
+df.m <- melt (mod.df, id.vars="Time")
+myCols <- c("#277BA8", "#7ABBBD")
+ymax <- max(df.m$value)+2
+ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
+  geom_line(size=2) +
+  xlab("Time") +
+  ylab("Population size (abundance)") +
+  scale_color_viridis(discrete=TRUE, end=0.6) +
+  scale_y_continuous(limits=c(0,ymax)) +
+  my_theme
+```
 
 <!---
 
