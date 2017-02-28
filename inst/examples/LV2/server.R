@@ -9,45 +9,44 @@ my_theme <- theme_bw()+
         panel.grid.minor.y = element_blank(),
         panel.grid.major.y = element_line(color="white"),
         panel.background   = element_rect(fill = "#EFEFEF"),
-        axis.text          = element_text(size=10, color="grey35", family = "Arial Narrow"),
-        axis.title         = element_text(size=12, family = "Arial Narrow", face = "bold"),
+        axis.text          = element_text(size=14, color="grey35", family = "Arial Narrow"),
+        axis.title         = element_text(size=16, family = "Arial Narrow", face = "bold"),
         panel.border       = element_blank(),
         axis.line.x        = element_line(color="black"),
         axis.line.y        = element_line(color="black"),
         strip.background   = element_blank(),
-        strip.text         = element_text(size=10, color="grey35", family = "Arial Narrow"),
-        legend.title       = element_text(size=10, family = "Arial Narrow"),
-        legend.text        = element_text(size=8, color="grey35", family = "Arial Narrow"))
+        strip.text         = element_text(size=14, color="grey35", family = "Arial Narrow"),
+        legend.title       = element_text(size=14, family = "Arial Narrow"),
+        legend.text        = element_text(size=14, color="grey35", family = "Arial Narrow"))
 
 
 ## Continuous model
-updateLV <- function(t, N, parms){
-  with(as.list(c(N, parms)), {
-    dN1dt <- r[1]*N1*((K[1]-N1-a[1]*N2)/K[1])
-    dN2dt <- r[2]*N2*((K[2]-N2-a[2]*N1)/K[2])
-    list(c(dN1dt, dN2dt)) #output
-  })
+run_lv_chesson <- function(initial_pop_size = 1,
+                           growth_rates = rep(0.02,2),
+                           competition_matrix,
+                           generations = 500){
+  N     <- matrix(nrow = generations, ncol = 2)
+  N[1,] <- initial_pop_size
+  r     <- growth_rates
+  A     <- competition_matrix
+  
+  for(t in 2:generations){
+    N[t,1] <- N[t-1,1] + (r[1]*N[t-1,1])*(1 - A[1,1]*N[t-1,1] - A[1,2]*N[t-1,2])
+    N[t,2] <- N[t-1,2] + (r[2]*N[t-1,2])*(1 - A[2,1]*N[t-1,1] - A[2,2]*N[t-1,2])
+  }
+  return(N)
 }
 
 shinyServer(function(input, output, session) {
   output$LV <- renderPlot({
-    parms <- list(
-      r = c(1.1, 1.1),
-      K = c(100, 150),
-      a = as.numeric(c(input$a21, input$a12))
-      # a =c(0,0)
-    )
-    N <- c(N1=10,N2=10)
-    simtime <- 50
-    odetime <- seq(1,simtime,by=0.1)
-    model <- as.data.frame(ode(y = N, times = odetime,
-                               func = updateLV, parms = parms))
-    
+    A <- matrix(c(input$a11, input$a12, input$a21, input$a22), ncol=2, nrow=2)
+    model <- run_lv_chesson(competition_matrix=A) * 10
     mod.df <- as.data.frame(model)
-    colnames(mod.df) <- c("Time", "N1", "N2")
+    mod.df$Time <- 1:nrow(mod.df)
+    colnames(mod.df) <- c("N1", "N2", "Time")
     df.m <- melt (mod.df, id.vars="Time")
     myCols <- c("#277BA8", "#7ABBBD")
-    ymax <- max(df.m$value)+20
+    ymax <- max(df.m$value)+2
     theplot <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
       geom_line(size=2) +
       xlab("Time") +
@@ -55,8 +54,7 @@ shinyServer(function(input, output, session) {
       scale_color_viridis(discrete=TRUE, end=0.6) +
       scale_y_continuous(limits=c(0,ymax)) +
       my_theme
-
+    
     print(theplot)
   })
 })
-
