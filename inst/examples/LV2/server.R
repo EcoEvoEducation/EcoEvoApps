@@ -39,7 +39,7 @@ run_lv_chesson <- function(initial_pop_size = 1,
 
 shinyServer(function(input, output, session) {
   output$LV <- renderPlot({
-    A <- matrix(c(input$a11, input$a12, input$a21, input$a22), ncol=2, nrow=2)
+    A <- matrix(as.numeric(c(input$a11, input$a12, input$a21, input$a22)), ncol=2, nrow=2)
     model <- run_lv_chesson(competition_matrix=A) * 10
     mod.df <- as.data.frame(model)
     mod.df$Time <- 1:nrow(mod.df)
