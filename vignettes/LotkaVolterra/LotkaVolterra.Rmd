@@ -81,7 +81,7 @@ $$
 $$
 Notice how we got to drop the *t* subscripts becuase we are now defining populationg growth at any instantaneous point in time. Also notice that we added two *i* subscripts to $\alpha$, and $\alpha_{ii}$ reads as the effect of species *i* on species *i*. By this point, is is probably becoming pretty obvious how we include the effect of another species.
 
-To include the effect of another species, we assume that growth is further limited by a simple function of the number of the other species, $\alpha_{2,1}N_2$.
+To include the effect of another species, we assume that growth is further limited by a simple function of the number of the other species, $\alpha_{ij}Nj$, where $\alpha_{ij} reads as: "the effect of species *j* on species *i*". Putting it all together 
 
 $$
 \frac{dN_1}{dt} = r_1N_1\left(\frac{K_1-N_1-\alpha_{2,1}N_2}{K_1}\right)
