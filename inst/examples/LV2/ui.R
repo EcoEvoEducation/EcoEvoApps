@@ -12,11 +12,11 @@ shinyUI(navbarPage("Lotka-Volterra",tabPanel("Species Competition Model",
                    sidebarPanel(
                      radioButtons("a12",
                                   label="Effect of species 2 on species 1",
-                                  c(0.1,0.2,0.3,0.4),
+                                  c(0.09,0.1,0.5,0.3),
                                   inline = TRUE),
                      radioButtons("a21",
                                  label="Effect of species 1 on species 2",
-                                 c(0.1,0.2,0.3,0.4),
+                                 c(0.09,0.1,0.5,0.3),
                                  inline = TRUE),
                      actionButton("go", "Run")),
                    mainPanel(
