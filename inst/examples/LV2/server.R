@@ -38,27 +38,25 @@ run_lv_chesson <- function(initial_pop_size = 1,
 }
 
 shinyServer(function(input, output, session) {
-  
-  A <- matrix(as.numeric(c(0.1, input$a12, input$a21, 0.2)), ncol=2, nrow=2)
-  model <- run_lv_chesson(competition_matrix=A) * 10
-  mod.df <- as.data.frame(model)
-  mod.df$Time <- 1:nrow(mod.df)
-  colnames(mod.df) <- c("N1", "N2", "Time")
-  
-  df.m <- eventReactive(input$go, {
-    melt (mod.df, id.vars="Time")
-  })
-  
-  output$LV <- renderPlot({
-    myCols <- c("#277BA8", "#7ABBBD")
-    ymax <- max(df.m$value)+2
-    theplot <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
-      geom_line(size=2) +
-      xlab("Time") +
-      ylab("Population size (abundance)") +
-      scale_color_viridis(discrete=TRUE, end=0.6) +
-      scale_y_continuous(limits=c(0,ymax)) +
-      my_theme
-    print(theplot)
+  output$LV <- observeEvent(input$go, {
+    renderPlot({
+      A <- matrix(as.numeric(c(0.1, input$a12, input$a21, 0.2)), ncol=2, nrow=2)
+      model <- run_lv_chesson(competition_matrix=A) * 10
+      mod.df <- as.data.frame(model)
+      mod.df$Time <- 1:nrow(mod.df)
+      colnames(mod.df) <- c("N1", "N2", "Time")
+      df.m <- melt (mod.df, id.vars="Time")
+      myCols <- c("#277BA8", "#7ABBBD")
+      ymax <- max(df.m$value)+2
+      theplot <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
+        geom_line(size=2) +
+        xlab("Time") +
+        ylab("Population size (abundance)") +
+        scale_color_viridis(discrete=TRUE, end=0.6) +
+        scale_y_continuous(limits=c(0,ymax)) +
+        my_theme
+      
+      print(theplot)
+    }) 
   })
 })
