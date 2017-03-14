@@ -39,7 +39,7 @@ run_lv_chesson <- function(initial_pop_size = 1,
 
 shinyServer(function(input, output, session) {
   A <- eventReactive(input$go, {
-    matrix(as.numeric(c(0.1, input$a12, input$a21, 0.2)), ncol=2, nrow=2)
+    matrix(as.numeric(c(0.3, input$a12, input$a21, 0.1)), ncol=2, nrow=2)
   })
   
   output$LV <- renderPlot({
