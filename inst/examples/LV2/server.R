@@ -58,8 +58,42 @@ shinyServer(function(input, output, session) {
       ylab("Population size (abundance)") +
       scale_color_viridis(discrete=TRUE, end=0.6) +
       scale_y_continuous(limits=c(0,ymax)) +
+      ggtitle("Population Time Series")+
       my_theme
-    
-    print(theplot)
+      
+      model <- run_lv_chesson(competition_matrix=A(), initial_pop_size = c(1e-1,10)) * 10
+      mod.df <- as.data.frame(model)
+      mod.df$Time <- 1:nrow(mod.df)
+      colnames(mod.df) <- c("N1", "N2", "Time")
+      df.m <- melt (mod.df, id.vars="Time")
+      myCols <- c("#277BA8", "#7ABBBD")
+      ymax <- max(df.m$value)+2
+      theplot2 <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
+        geom_line(size=2) +
+        xlab("Time") +
+        ylab("Population size (abundance)") +
+        scale_color_viridis(discrete=TRUE, end=0.6) +
+        scale_y_continuous(limits=c(0,ymax)) +
+        ggtitle("Species N1 Invasion")+
+      my_theme
+      
+      model <- run_lv_chesson(competition_matrix=A(), initial_pop_size = c(10,1e-1)) * 10
+      mod.df <- as.data.frame(model)
+      mod.df$Time <- 1:nrow(mod.df)
+      colnames(mod.df) <- c("N1", "N2", "Time")
+      df.m <- melt (mod.df, id.vars="Time")
+      myCols <- c("#277BA8", "#7ABBBD")
+      ymax <- max(df.m$value)+2
+      theplot3 <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
+        geom_line(size=2) +
+        xlab("Time") +
+        ylab("Population size (abundance)") +
+        scale_color_viridis(discrete=TRUE, end=0.6) +
+        scale_y_continuous(limits=c(0,ymax)) +
+        ggtitle("Species N2 Invasion")+
+        my_theme
+    mylayout <- rbind(c(1,1),
+                      c(2,3))
+    print(grid.arrange(theplot, theplot2, theplot3, layout_matrix=mylayout))
   })
 })
