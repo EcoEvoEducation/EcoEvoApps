@@ -22,7 +22,7 @@ my_theme <- theme_bw()+
 
 ## Continuous model
 run_lv_chesson <- function(initial_pop_size = 1,
-                           growth_rates = rep(0.02,2),
+                           growth_rates = rep(0.1,2),
                            competition_matrix,
                            generations = 500){
   N     <- matrix(nrow = generations, ncol = 2)
@@ -71,10 +71,11 @@ shinyServer(function(input, output, session) {
       theplot2 <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
         geom_line(size=2) +
         xlab("Time") +
-        ylab("Population size (abundance)") +
+        ylab("Population size") +
         scale_color_viridis(discrete=TRUE, end=0.6) +
         scale_y_continuous(limits=c(0,ymax)) +
         ggtitle("Species N1 Invasion")+
+        guides(color=FALSE)+
       my_theme
       
       model <- run_lv_chesson(competition_matrix=A(), initial_pop_size = c(10,1e-1)) * 10
@@ -87,10 +88,11 @@ shinyServer(function(input, output, session) {
       theplot3 <- ggplot(data=df.m, aes(x=Time, y=value, color=variable)) +
         geom_line(size=2) +
         xlab("Time") +
-        ylab("Population size (abundance)") +
+        ylab("Population size") +
         scale_color_viridis(discrete=TRUE, end=0.6) +
         scale_y_continuous(limits=c(0,ymax)) +
         ggtitle("Species N2 Invasion")+
+        guides(color=FALSE)+
         my_theme
     mylayout <- rbind(c(1,1),
                       c(2,3))
