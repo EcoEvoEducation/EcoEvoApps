@@ -1,6 +1,6 @@
 ---
 title: "Lotka-Volterra Model of Species Competition"
-author: "Andrew Tredennick and Brittany Teller"
+author: "Andrew Tredennick, Jacqueline Peña, Katie Renwick, Danielle Smull, Brittany Teller, and Peter Adler"
 output: html_document
 runtime: shiny
 ---
